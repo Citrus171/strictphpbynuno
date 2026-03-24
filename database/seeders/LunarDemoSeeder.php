@@ -23,7 +23,7 @@ use Lunar\Models\ProductVariant;
 use Lunar\Models\TaxClass;
 use Lunar\FieldTypes\Text;
 
-class LunarDemoSeeder extends Seeder
+final class LunarDemoSeeder extends Seeder
 {
     public function run(): void
     {
