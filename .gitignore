@@ -26,3 +26,7 @@ Homestead.yaml
 /.zed
 /tmp/
 /.playwright-mcp/
+/public/css/
+/public/js/
+/public/vendor/
+/storage/media-library/
