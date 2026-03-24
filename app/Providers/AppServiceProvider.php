@@ -5,11 +5,18 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Lunar\Admin\Support\Facades\LunarPanel;
+use Lunar\Facades\Telemetry;
 
 final class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        LunarPanel::register();
+    }
+
+    public function boot(): void
+    {
+        Telemetry::optOut();
     }
 }
