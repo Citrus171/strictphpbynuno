@@ -168,9 +168,7 @@ export default function CartIndex({
                                     </button>
                                 </div>
                             ) : (
-                                <Form
-                                    {...cartApplyCoupon.form()}
-                                >
+                                <Form {...cartApplyCoupon.form()}>
                                     {({ errors, processing }) => (
                                         <div className="flex gap-2">
                                             <input
