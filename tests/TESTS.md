@@ -1,0 +1,185 @@
+# テスト一覧
+
+## Browser
+
+### WelcomeTest
+- [ ] has welcome page
+
+### ProductsPageTest
+- [ ] 商品一覧ページが正しく表示されること
+- [ ] ストアフロントのヘッダーナビゲーションが表示されること
+- [ ] 商品カードに商品名・ブランド・価格が表示されること
+- [ ] 商品がない場合に空状態メッセージが表示されること
+- [ ] 商品カードをクリックした時、商品詳細ページへ遷移できること
+
+---
+
+## Feature
+
+### Actions / GetProductTest
+- [ ] 公開済み商品のslugを指定した時、商品を取得できること
+- [ ] 下書き商品のslugを指定した時、商品が見つからないこと
+
+### Actions / GetProductsTest
+- [ ] 公開済み商品をページネーション付きで取得できること
+- [ ] デフォルトで12件ずつ取得すること
+- [ ] ページ番号を指定して取得できること
+- [ ] `price_asc` を指定した時、価格が安い順で返すこと
+- [ ] `price_desc` を指定した時、価格が高い順で返すこと
+- [ ] `name_asc` を指定した時、名前のアルファベット順で返すこと
+- [ ] キーワードを指定した時、名前に含む商品のみ返すこと
+- [ ] キーワードが一致しない時、空の結果を返すこと
+- [ ] ブランドを指定した時、そのブランドの商品のみ返すこと
+- [ ] コレクションを指定した時、そのコレクションの商品のみ返すこと
+- [ ] ブランドフィルタとソートを組み合わせた時、正しく動作すること
+
+### Controllers / ProductControllerTest
+- [ ] `/products` にアクセスした時、商品一覧ページが表示されること
+- [ ] 公開済み商品の一覧がpropsに含まれること
+- [ ] 下書き商品は一覧に含まれないこと
+- [ ] ページネーションが動作すること
+- [ ] `brand` パラメータを指定した時、フィルタが適用されること
+- [ ] `search` パラメータを指定した時、検索が適用されること
+- [ ] `sort` パラメータを指定した時、フィルタ情報がpropsに含まれること
+- [ ] `/products/{slug}` にアクセスした時、商品詳細ページが表示されること
+- [ ] 存在しないslugで商品詳細にアクセスした時、404を返すこと
+
+### Controllers / SessionControllerTest
+- [ ] renders login page
+- [ ] may create a session
+- [ ] may create a session with remember me
+- [ ] redirects to two factor challenge when enabled
+- [ ] fails with invalid credentials
+- [ ] requires email
+- [ ] requires password
+- [ ] may destroy a session
+- [ ] redirects authenticated users away from login
+- [ ] throttles login attempts after too many failures
+- [ ] clears rate limit after successful login
+- [ ] dispatches lockout event when rate limit is reached
+
+### Controllers / UserControllerTest
+- [ ] renders registration page
+- [ ] may register a new user
+- [ ] requires name
+- [ ] requires email
+- [ ] requires valid email
+- [ ] requires unique email
+- [ ] requires password
+- [ ] requires password confirmation
+- [ ] requires matching password confirmation
+- [ ] may delete user account
+- [ ] requires password to delete account
+- [ ] requires correct password to delete account
+- [ ] redirects authenticated users away from registration
+
+### Controllers / UserEmailResetNotificationTest
+- [ ] renders forgot password page
+- [ ] may send password reset notification
+- [ ] returns generic message for non-existent email
+- [ ] requires email
+- [ ] requires valid email format
+- [ ] redirects authenticated users away from forgot password
+
+### Controllers / UserEmailVerificationNotificationControllerTest
+- [ ] renders verify email page
+- [ ] redirects verified users to dashboard
+- [ ] may send verification notification
+- [ ] redirects verified users when sending notification
+
+### Controllers / UserEmailVerificationTest
+- [ ] may verify email
+- [ ] redirects to dashboard if already verified
+- [ ] requires valid signature
+
+### Controllers / UserPasswordControllerTest
+- [ ] renders reset password page
+- [ ] may reset password
+- [ ] fails with invalid token
+- [ ] fails with non-existent email
+- [ ] requires email
+- [ ] requires password
+- [ ] requires password confirmation
+- [ ] requires matching password confirmation
+- [ ] renders edit password page
+- [ ] may update password
+- [ ] requires current password to update
+- [ ] requires correct current password to update
+- [ ] requires new password to update
+- [ ] redirects authenticated users away from reset password
+
+### Controllers / UserProfileControllerTest
+- [ ] renders profile edit page
+- [ ] may update profile information
+- [ ] resets email verification when email changes
+- [ ] keeps email verification when email stays the same
+- [ ] requires name
+- [ ] requires email
+- [ ] requires valid email
+- [ ] requires unique email except own
+- [ ] allows keeping same email
+
+### Controllers / UserTwoFactorAuthenticationControllerTest
+- [ ] renders two factor authentication page
+- [ ] shows two factor disabled when not enabled
+- [ ] shows two factor enabled when enabled
+
+---
+
+## Unit
+
+### Actions / CreateUserTest
+- [ ] may create a user
+
+### Actions / CreateUserPasswordTest
+- [ ] may create a new user password
+- [ ] returns invalid token status for incorrect token
+- [ ] returns invalid user status for non-existent email
+- [ ] updates remember token when resetting password
+
+### Actions / CreateUserEmailResetNotificationTest
+- [ ] may send password reset notification
+- [ ] returns throttled status when too many attempts
+- [ ] returns invalid user status for non-existent email
+
+### Actions / CreateUserEmailVerificationNotificationTest
+- [ ] may send email verification notification
+
+### Actions / DeleteUserTest
+- [ ] may delete a user
+
+### Actions / UpdateUserPasswordTest
+- [ ] may update a user password
+
+### Actions / UpdateUserTest
+- [ ] may update a user
+- [ ] resets email verification and sends notification when email changes
+- [ ] keeps email verification and does not send notification when email stays the same
+
+### Middleware / HandleAppearanceTest
+- [ ] shares appearance cookie value with views
+- [ ] defaults to system when appearance cookie not present
+- [ ] handles light appearance
+- [ ] handles system appearance
+
+### Middleware / HandleInertiaRequestsTest
+- [ ] shares app name from config
+- [ ] shares null user when guest
+- [ ] shares authenticated user data
+- [ ] defaults sidebarOpen to true when no cookie
+- [ ] sets sidebarOpen to true when cookie is true
+- [ ] sets sidebarOpen to false when cookie is false
+- [ ] includes parent shared data
+
+### Models / UserTest
+- [ ] to array
+
+### Rules / ValidEmailTest
+- [ ] it works with valid email（36ケース）
+- [ ] it fails with invalid email（26ケース）
+
+### ArchTest
+- [ ] preset → php
+- [ ] preset → strict
+- [ ] preset → security → ignoring assert
+- [ ] controllers
