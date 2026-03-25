@@ -3,9 +3,11 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Lunar\DiscountTypes\AmountOff;
 use Lunar\Models\CartLine;
 use Lunar\Models\Channel;
 use Lunar\Models\Currency;
+use Lunar\Models\Discount;
 use Lunar\Models\Language;
 use Lunar\Models\Price;
 use Lunar\Models\ProductVariant;
@@ -185,9 +187,9 @@ it('有効なクーポンコードを送信した時、カートに適用され�
     $variant = createVariantWithPrice(price: 1000, stock: 10);
     $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
 
-    Lunar\Models\Discount::factory()->create([
+    Discount::factory()->create([
         'coupon' => 'VALID10',
-        'type' => Lunar\DiscountTypes\AmountOff::class,
+        'type' => AmountOff::class,
         'starts_at' => now()->subDay(),
         'data' => ['fixed_value' => false, 'percentage' => 10],
     ]);
@@ -216,9 +218,9 @@ it('クーポン適用後にGETするとcouponCodeとdiscountTotalが含まれ�
     $variant = createVariantWithPrice(price: 1000, stock: 10);
     $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
 
-    Lunar\Models\Discount::factory()->create([
+    Discount::factory()->create([
         'coupon' => 'DISC20',
-        'type' => Lunar\DiscountTypes\AmountOff::class,
+        'type' => AmountOff::class,
         'starts_at' => now()->subDay(),
         'data' => ['fixed_value' => false, 'percentage' => 20],
     ]);
@@ -276,9 +278,9 @@ it('クーポンが適用されている時、DELETE /cart/couponでクーポン
     $variant = createVariantWithPrice(price: 1000, stock: 10);
     $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
 
-    Lunar\Models\Discount::factory()->create([
+    Discount::factory()->create([
         'coupon' => 'REMOVE10',
-        'type' => Lunar\DiscountTypes\AmountOff::class,
+        'type' => AmountOff::class,
         'starts_at' => now()->subDay(),
         'data' => ['fixed_value' => false, 'percentage' => 10],
     ]);

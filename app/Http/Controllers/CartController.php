@@ -79,14 +79,14 @@ final readonly class CartController
             $discountTotal = $cart->discountTotal?->value;
 
             $shippingOptions = ShippingManifest::getOptions($cart)
-                ->map(fn (ShippingOption $option) => [
+                ->map(fn (ShippingOption $option): array => [
                     'identifier' => $option->getIdentifier(),
                     'name' => $option->getName(),
                     'description' => $option->getDescription(),
                     'price' => $option->getPrice()->value,
                 ])
                 ->values()
-                ->toArray();
+                ->all();
         }
 
         return Inertia::render('cart/index', [

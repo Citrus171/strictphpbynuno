@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Lunar\DiscountTypes\AmountOff;
 use Lunar\Models\Channel;
 use Lunar\Models\Currency;
 use Lunar\Models\Discount;
@@ -105,7 +106,7 @@ it('有効なクーポンを適用した時に割引が表示されること', f
 
     Discount::factory()->create([
         'coupon' => 'BROWSER10',
-        'type' => Lunar\DiscountTypes\AmountOff::class,
+        'type' => AmountOff::class,
         'starts_at' => now()->subDay(),
         'data' => ['fixed_value' => false, 'percentage' => 10],
     ]);

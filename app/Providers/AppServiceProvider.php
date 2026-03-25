@@ -21,6 +21,6 @@ final class AppServiceProvider extends ServiceProvider
     {
         Telemetry::optOut();
 
-        app(ShippingModifiers::class)->add(FlatRateShipping::class);
+        resolve(ShippingModifiers::class)->add(FlatRateShipping::class);
     }
 }
