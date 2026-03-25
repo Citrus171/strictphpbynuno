@@ -3,9 +3,11 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Lunar\DiscountTypes\AmountOff;
 use Lunar\Models\CartLine;
 use Lunar\Models\Channel;
 use Lunar\Models\Currency;
+use Lunar\Models\Discount;
 use Lunar\Models\Language;
 use Lunar\Models\Price;
 use Lunar\Models\ProductVariant;
@@ -177,4 +179,130 @@ it('カートに追加後、GETでtotalが含まれること', function (): void
     $response->assertOk()
         ->assertInertia(fn ($page) => $page
             ->whereNot('total', null));
+});
+
+// ─── Slice 7: クーポン適用エンドポイント ──────────────────────────────────────
+
+it('有効なクーポンコードを送信した時、カートに適用されリダイレクトされること', function (): void {
+    $variant = createVariantWithPrice(price: 1000, stock: 10);
+    $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
+
+    Discount::factory()->create([
+        'coupon' => 'VALID10',
+        'type' => AmountOff::class,
+        'starts_at' => now()->subDay(),
+        'data' => ['fixed_value' => false, 'percentage' => 10],
+    ]);
+
+    $response = $this->post(route('cart.coupon.store'), [
+        'couponCode' => 'VALID10',
+    ]);
+
+    $response->assertRedirect();
+    $this->assertDatabaseHas('lunar_carts', ['coupon_code' => 'VALID10']);
+});
+
+it('無効なクーポンコードを送信した時、エラーがセッションに入ること', function (): void {
+    $variant = createVariantWithPrice(price: 1000, stock: 10);
+    $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
+
+    $response = $this->post(route('cart.coupon.store'), [
+        'couponCode' => 'BADCODE',
+    ]);
+
+    $response->assertRedirect()
+        ->assertSessionHasErrors('couponCode');
+});
+
+it('クーポン適用後にGETするとcouponCodeとdiscountTotalが含まれること', function (): void {
+    $variant = createVariantWithPrice(price: 1000, stock: 10);
+    $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
+
+    Discount::factory()->create([
+        'coupon' => 'DISC20',
+        'type' => AmountOff::class,
+        'starts_at' => now()->subDay(),
+        'data' => ['fixed_value' => false, 'percentage' => 20],
+    ]);
+    $this->post(route('cart.coupon.store'), ['couponCode' => 'DISC20']);
+
+    $response = $this->get(route('cart.index'));
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('couponCode')
+            ->has('discountTotal')
+            ->where('couponCode', 'DISC20'));
+});
+
+it('カートが存在しない時にクーポンを送信しても、リダイレクトされること', function (): void {
+    $response = $this->post(route('cart.coupon.store'), [
+        'couponCode' => 'VALID10',
+    ]);
+
+    $response->assertRedirect();
+});
+
+it('クーポンが未適用の時、GETでcouponCodeがnullであること', function (): void {
+    $response = $this->get(route('cart.index'));
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('couponCode', null));
+});
+
+// ─── Slice 8: 送料オプション ───────────────────────────────────────────────────
+
+it('GETでshippingOptionsが配列として返されること', function (): void {
+    $response = $this->get(route('cart.index'));
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('shippingOptions'));
+});
+
+it('送料オプションが登録されている時、identifier・name・priceが含まれること', function (): void {
+    $variant = createVariantWithPrice(price: 1000, stock: 10);
+    $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
+
+    $response = $this->get(route('cart.index'));
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('shippingOptions', fn ($options) => $options
+                ->each(fn ($option) => $option
+                    ->has('identifier')
+                    ->has('name')
+                    ->has('price')
+                    ->etc()
+                )
+            )
+        );
+});
+
+// ─── Slice 9: クーポン削除 ────────────────────────────────────────────────────
+
+it('クーポンが適用されている時、DELETE /cart/couponでクーポンが削除されること', function (): void {
+    $variant = createVariantWithPrice(price: 1000, stock: 10);
+    $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
+
+    Discount::factory()->create([
+        'coupon' => 'REMOVE10',
+        'type' => AmountOff::class,
+        'starts_at' => now()->subDay(),
+        'data' => ['fixed_value' => false, 'percentage' => 10],
+    ]);
+    $this->post(route('cart.coupon.store'), ['couponCode' => 'REMOVE10']);
+    $this->assertDatabaseHas('lunar_carts', ['coupon_code' => 'REMOVE10']);
+
+    $response = $this->delete(route('cart.coupon.destroy'));
+
+    $response->assertRedirect();
+    $this->assertDatabaseMissing('lunar_carts', ['coupon_code' => 'REMOVE10']);
+});
+
+it('カートが存在しない時もDELETE /cart/couponでリダイレクトされること', function (): void {
+    $response = $this->delete(route('cart.coupon.destroy'));
+
+    $response->assertRedirect();
 });
