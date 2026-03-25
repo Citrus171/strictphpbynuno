@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Lunar\Pipelines\Order\Creation\FillOrderFromCart;
-use Lunar\Pipelines\Order\Creation\CreateOrderLines;
-use Lunar\Pipelines\Order\Creation\CreateOrderAddresses;
-use Lunar\Pipelines\Order\Creation\CreateShippingLine;
-use Lunar\Pipelines\Order\Creation\CleanUpOrderLines;
-use Lunar\Pipelines\Order\Creation\MapDiscountBreakdown;
 use Lunar\Base\OrderReferenceGenerator;
+use Lunar\Pipelines\Order\Creation\CleanUpOrderLines;
+use Lunar\Pipelines\Order\Creation\CreateOrderAddresses;
+use Lunar\Pipelines\Order\Creation\CreateOrderLines;
+use Lunar\Pipelines\Order\Creation\CreateShippingLine;
+use Lunar\Pipelines\Order\Creation\FillOrderFromCart;
+use Lunar\Pipelines\Order\Creation\MapDiscountBreakdown;
 
 return [
     /*
