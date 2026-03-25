@@ -47,8 +47,10 @@
 - [ ] `/products/{slug}` にアクセスした時、商品詳細ページが表示されること
 - [ ] 存在しないslugで商品詳細にアクセスした時、404を返すこと
 - [ ] 商品詳細propsにバリアント情報（SKU・価格・在庫）が含まれること
+- [ ] purchasableがalwaysのバリアントの時、inStockがtrueになること
 - [ ] 在庫切れバリアントの時、inStockがfalseになること
 - [ ] 商品詳細propsに全画像一覧が含まれること
+- [ ] 商品に画像がある時、imagesにURLが含まれること
 - [ ] 商品詳細propsに関連商品が含まれること
 
 ### Controllers / SessionControllerTest
