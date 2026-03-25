@@ -1,7 +1,8 @@
 import { show } from '@/actions/App/Http/Controllers/ProductController';
 import StorefrontLayout from '@/layouts/storefront-layout';
 import { formatPrice } from '@/lib/format-price';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useCallback, useState } from 'react';
 
 interface Product {
     id: number;
@@ -27,11 +28,78 @@ interface PaginatedProducts {
     links: PaginationLink[];
 }
 
-interface Props {
-    products: PaginatedProducts;
+interface BrandOption {
+    id: number;
+    name: string;
 }
 
-export default function ProductsIndex({ products }: Props) {
+interface CollectionOption {
+    id: number;
+    name: string;
+}
+
+interface Filters {
+    brand: number | null;
+    collection: number | null;
+    sort: string | null;
+    search: string | null;
+}
+
+interface Props {
+    products: PaginatedProducts;
+    filters: Filters;
+    brands: BrandOption[];
+    collections: CollectionOption[];
+}
+
+const SORT_OPTIONS = [
+    { value: '', label: '新着順' },
+    { value: 'price_asc', label: '価格：安い順' },
+    { value: 'price_desc', label: '価格：高い順' },
+    { value: 'name_asc', label: '名前順' },
+];
+
+export default function ProductsIndex({
+    products,
+    filters,
+    brands,
+    collections,
+}: Props) {
+    const [search, setSearch] = useState(filters.search ?? '');
+
+    const applyFilter = useCallback(
+        (params: Partial<Filters & { perPage?: number }>) => {
+            router.get(
+                window.location.pathname,
+                Object.fromEntries(
+                    Object.entries({
+                        ...filters,
+                        search,
+                        page: undefined,
+                        ...params,
+                    }).filter(
+                        ([, v]) => v !== null && v !== undefined && v !== '',
+                    ),
+                ),
+                { preserveScroll: true },
+            );
+        },
+        [filters, search],
+    );
+
+    const handleSearch = useCallback(
+        (e: React.FormEvent) => {
+            e.preventDefault();
+            applyFilter({
+                search: search || null,
+                brand: filters.brand,
+                collection: filters.collection,
+                sort: filters.sort,
+            });
+        },
+        [applyFilter, search, filters],
+    );
+
     return (
         <StorefrontLayout>
             <Head title="商品一覧" />
@@ -45,11 +113,128 @@ export default function ProductsIndex({ products }: Props) {
                 </p>
             </div>
 
+            {/* フィルタ・ソート・検索 */}
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
+                {/* キーワード検索 */}
+                <form onSubmit={handleSearch} className="flex gap-2">
+                    <input
+                        type="search"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="商品名で検索..."
+                        className="h-9 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-gray-900 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder:text-neutral-500 dark:focus:ring-white"
+                    />
+                    <button
+                        type="submit"
+                        className="h-9 rounded-md bg-gray-900 px-4 text-sm font-medium text-white transition-colors hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+                    >
+                        検索
+                    </button>
+                </form>
+
+                {/* ブランドフィルタ */}
+                {brands.length > 0 && (
+                    <select
+                        value={filters.brand ?? ''}
+                        onChange={(e) =>
+                            applyFilter({
+                                brand: e.target.value
+                                    ? Number(e.target.value)
+                                    : null,
+                            })
+                        }
+                        className="h-9 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 focus:ring-2 focus:ring-gray-900 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:focus:ring-white"
+                    >
+                        <option value="">すべてのブランド</option>
+                        {brands.map((b) => (
+                            <option key={b.id} value={b.id}>
+                                {b.name}
+                            </option>
+                        ))}
+                    </select>
+                )}
+
+                {/* コレクションフィルタ */}
+                {collections.length > 0 && (
+                    <select
+                        value={filters.collection ?? ''}
+                        onChange={(e) =>
+                            applyFilter({
+                                collection: e.target.value
+                                    ? Number(e.target.value)
+                                    : null,
+                            })
+                        }
+                        className="h-9 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 focus:ring-2 focus:ring-gray-900 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:focus:ring-white"
+                    >
+                        <option value="">すべてのカテゴリ</option>
+                        {collections.map((c) => (
+                            <option key={c.id} value={c.id}>
+                                {c.name}
+                            </option>
+                        ))}
+                    </select>
+                )}
+
+                {/* ソート */}
+                <select
+                    value={filters.sort ?? ''}
+                    onChange={(e) =>
+                        applyFilter({ sort: e.target.value || null })
+                    }
+                    className="h-9 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 focus:ring-2 focus:ring-gray-900 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:focus:ring-white"
+                >
+                    {SORT_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>
+                            {o.label}
+                        </option>
+                    ))}
+                </select>
+
+                {/* フィルタリセット */}
+                {(filters.brand ||
+                    filters.collection ||
+                    filters.sort ||
+                    filters.search) && (
+                    <Link
+                        href={window.location.pathname}
+                        className="inline-flex h-9 items-center rounded-md border border-gray-300 px-3 text-sm text-gray-600 transition-colors hover:bg-gray-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                    >
+                        リセット
+                    </Link>
+                )}
+            </div>
+
             {products.data.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 text-center">
-                    <p className="text-lg text-gray-500 dark:text-neutral-400">
-                        商品がありません
+                    <svg
+                        className="mb-4 h-16 w-16 text-gray-300 dark:text-neutral-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1}
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
+                    </svg>
+                    <p className="text-lg font-medium text-gray-500 dark:text-neutral-400">
+                        {filters.search || filters.brand || filters.collection
+                            ? '条件に一致する商品が見つかりませんでした'
+                            : '商品がありません'}
                     </p>
+                    {(filters.search ||
+                        filters.brand ||
+                        filters.collection) && (
+                        <Link
+                            href={window.location.pathname}
+                            className="mt-4 text-sm text-gray-600 underline hover:text-gray-900 dark:text-neutral-400 dark:hover:text-white"
+                        >
+                            すべての商品を見る
+                        </Link>
+                    )}
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
