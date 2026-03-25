@@ -269,3 +269,30 @@ it('送料オプションが登録されている時、identifier・name・price
             )
         );
 });
+
+// ─── Slice 9: クーポン削除 ────────────────────────────────────────────────────
+
+it('クーポンが適用されている時、DELETE /cart/couponでクーポンが削除されること', function (): void {
+    $variant = createVariantWithPrice(price: 1000, stock: 10);
+    $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
+
+    Lunar\Models\Discount::factory()->create([
+        'coupon' => 'REMOVE10',
+        'type' => Lunar\DiscountTypes\AmountOff::class,
+        'starts_at' => now()->subDay(),
+        'data' => ['fixed_value' => false, 'percentage' => 10],
+    ]);
+    $this->post(route('cart.coupon.store'), ['couponCode' => 'REMOVE10']);
+    $this->assertDatabaseHas('lunar_carts', ['coupon_code' => 'REMOVE10']);
+
+    $response = $this->delete(route('cart.coupon.destroy'));
+
+    $response->assertRedirect();
+    $this->assertDatabaseMissing('lunar_carts', ['coupon_code' => 'REMOVE10']);
+});
+
+it('カートが存在しない時もDELETE /cart/couponでリダイレクトされること', function (): void {
+    $response = $this->delete(route('cart.coupon.destroy'));
+
+    $response->assertRedirect();
+});

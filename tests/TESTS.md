@@ -63,6 +63,12 @@
 - [ ] クーポンが未適用の時、GETでcouponCodeがnullであること
 - [ ] GETでshippingOptionsが配列として返されること
 - [ ] 送料オプションが登録されている時、identifier・name・priceが含まれること
+- [ ] クーポンが適用されている時、DELETE /cart/couponでクーポンが削除されること
+- [ ] カートが存在しない時もDELETE /cart/couponでリダイレクトされること
+
+### Shipping / FlatRateShippingTest
+- [ ] デフォルト通貨が存在しない時、nextを呼び出してカートを返すこと
+- [ ] 税クラスが存在しない時、nextを呼び出してカートを返すこと
 
 ### Controllers / ProductControllerTest
 - [ ] `/products` にアクセスした時、商品一覧ページが表示されること
