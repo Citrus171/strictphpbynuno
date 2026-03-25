@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Actions\GetProducts;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Lunar\FieldTypes\Text;
 use Lunar\Models\Brand;
 use Lunar\Models\Collection;
 use Lunar\Models\CollectionGroup;
@@ -53,8 +54,8 @@ it('ページ番号を指定して取得できること', function (): void {
  */
 function createProductWithPrices(array $prices, string $status = 'published'): Product
 {
-    $currency = Currency::firstOrCreate(['default' => true], Currency::factory()->make()->toArray());
-    $taxClass = TaxClass::firstOrCreate(['name' => 'Default'], TaxClass::factory()->make()->toArray());
+    $currency = Currency::query()->firstOrCreate(['default' => true], Currency::factory()->make()->toArray());
+    $taxClass = TaxClass::query()->firstOrCreate(['name' => 'Default'], TaxClass::factory()->make()->toArray());
     $product = Product::factory()->create(['status' => $status]);
 
     foreach ($prices as $price) {
@@ -62,7 +63,7 @@ function createProductWithPrices(array $prices, string $status = 'published'): P
             'tax_class_id' => $taxClass->id,
             'sku' => fake()->unique()->ean8(),
         ]);
-        Price::create([
+        Price::query()->create([
             'currency_id' => $currency->id,
             'priceable_type' => $variant->getMorphClass(),
             'priceable_id' => $variant->id,
@@ -97,9 +98,9 @@ it('price_descを指定した時、価格が高い順で返すこと', function 
 });
 
 it('キーワードを指定した時、名前に含む商品のみ返すこと', function (): void {
-    Product::factory()->create(['status' => 'published', 'attribute_data' => collect(['name' => new Lunar\FieldTypes\Text('iPhone 15 Pro')])]);
-    Product::factory()->create(['status' => 'published', 'attribute_data' => collect(['name' => new Lunar\FieldTypes\Text('iPhone 14')])]);
-    Product::factory()->create(['status' => 'published', 'attribute_data' => collect(['name' => new Lunar\FieldTypes\Text('Samsung Galaxy')])]);
+    Product::factory()->create(['status' => 'published', 'attribute_data' => collect(['name' => new Text('iPhone 15 Pro')])]);
+    Product::factory()->create(['status' => 'published', 'attribute_data' => collect(['name' => new Text('iPhone 14')])]);
+    Product::factory()->create(['status' => 'published', 'attribute_data' => collect(['name' => new Text('Samsung Galaxy')])]);
 
     $result = resolve(GetProducts::class)->handle(search: 'iPhone');
 
@@ -107,7 +108,7 @@ it('キーワードを指定した時、名前に含む商品のみ返すこと'
 });
 
 it('キーワードが一致しない時、空の結果を返すこと', function (): void {
-    Product::factory()->create(['status' => 'published', 'attribute_data' => collect(['name' => new Lunar\FieldTypes\Text('Apple Watch')])]);
+    Product::factory()->create(['status' => 'published', 'attribute_data' => collect(['name' => new Text('Apple Watch')])]);
 
     $result = resolve(GetProducts::class)->handle(search: 'Nonexistent');
 
@@ -115,9 +116,9 @@ it('キーワードが一致しない時、空の結果を返すこと', functio
 });
 
 it('name_ascを指定した時、名前のアルファベット順で返すこと', function (): void {
-    $productC = Product::factory()->create(['status' => 'published', 'attribute_data' => collect(['name' => new Lunar\FieldTypes\Text('Cinnamon')])]);
-    $productA = Product::factory()->create(['status' => 'published', 'attribute_data' => collect(['name' => new Lunar\FieldTypes\Text('Apple')])]);
-    $productB = Product::factory()->create(['status' => 'published', 'attribute_data' => collect(['name' => new Lunar\FieldTypes\Text('Banana')])]);
+    $productC = Product::factory()->create(['status' => 'published', 'attribute_data' => collect(['name' => new Text('Cinnamon')])]);
+    $productA = Product::factory()->create(['status' => 'published', 'attribute_data' => collect(['name' => new Text('Apple')])]);
+    $productB = Product::factory()->create(['status' => 'published', 'attribute_data' => collect(['name' => new Text('Banana')])]);
 
     $result = resolve(GetProducts::class)->handle(sort: 'name_asc');
 

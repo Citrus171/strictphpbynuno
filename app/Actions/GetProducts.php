@@ -26,7 +26,7 @@ final readonly class GetProducts
             ->status('published')
             ->with(['brand', 'variants.prices', 'media', 'defaultUrl'])
             ->when($search !== null, function (Builder $query) use ($search): void {
-                $query->whereRaw($this->nameAttributeExpression($query).' LIKE ?', ["%{$search}%"]);
+                $query->whereRaw($this->nameAttributeExpression($query).' LIKE ?', [sprintf('%%%s%%', $search)]);
             })
             ->when($brand !== null, fn (Builder $query) => $query->where('brand_id', $brand))
             ->when($collection !== null, fn (Builder $query) => $query->whereHas('collections', fn (Builder $q) => $q->where('lunar_collections.id', $collection)))
@@ -37,9 +37,9 @@ final readonly class GetProducts
                 $direction = $sort === 'price_asc' ? 'ASC' : 'DESC';
                 $morphType = ProductVariant::morphName();
                 $query->orderByRaw(
-                    "(SELECT MIN(p.price) FROM lunar_prices p
+                    '(SELECT MIN(p.price) FROM lunar_prices p
                       JOIN lunar_product_variants v ON p.priceable_id = v.id
-                      WHERE p.priceable_type = ? AND v.product_id = lunar_products.id) {$direction}",
+                      WHERE p.priceable_type = ? AND v.product_id = lunar_products.id) '.$direction,
                     [$morphType]
                 );
             })
