@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Lunar\Base\Traits\LunarUser;
 use Override;
 
 /**
@@ -33,6 +34,7 @@ final class User extends Authenticatable implements MustVerifyEmail
     use HasFactory;
 
     use HasUuids;
+    use LunarUser;
     use Notifiable;
     use TwoFactorAuthenticatable;
 

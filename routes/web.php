@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\UserController;
@@ -17,6 +18,11 @@ use Inertia\Inertia;
 Route::get('/', fn () => Inertia::render('welcome'))->name('home');
 
 // Storefront...
+Route::get('cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('cart/items', [CartController::class, 'store'])->name('cart.items.store');
+Route::patch('cart/items/{cartLineId}', [CartController::class, 'update'])->name('cart.items.update');
+Route::delete('cart/items/{cartLineId}', [CartController::class, 'destroy'])->name('cart.items.destroy');
+
 Route::get('products', [ProductController::class, 'index'])->name('products.index');
 Route::get('products/{slug}', [ProductController::class, 'show'])->name('products.show');
 
