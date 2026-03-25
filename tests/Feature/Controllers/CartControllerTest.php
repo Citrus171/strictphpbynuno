@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Lunar\Models\Cart;
 use Lunar\Models\CartLine;
 use Lunar\Models\Channel;
 use Lunar\Models\Currency;

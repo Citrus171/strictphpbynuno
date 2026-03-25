@@ -12,7 +12,7 @@ final readonly class AddToCart
 {
     public function handle(int $variantId, int $quantity = 1): Cart
     {
-        $variant = ProductVariant::findOrFail($variantId);
+        $variant = ProductVariant::query()->findOrFail($variantId);
 
         /** @var Cart $cart */
         $cart = CartSession::manager();

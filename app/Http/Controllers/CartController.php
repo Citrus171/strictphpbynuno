@@ -9,6 +9,7 @@ use App\Actions\RemoveFromCart;
 use App\Actions\UpdateCartItem;
 use App\Http\Requests\AddToCartRequest;
 use App\Http\Requests\UpdateCartItemRequest;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -32,7 +33,7 @@ final readonly class CartController
         $total = null;
 
         if ($cart) {
-            /** @var \Illuminate\Database\Eloquent\Collection<int, CartLine> $lines */
+            /** @var Collection<int, CartLine> $lines */
             $lines = $cart->lines()->with('purchasable.product')->get();
 
             $items = $lines->map(function (CartLine $line): array {
