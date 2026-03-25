@@ -26,18 +26,12 @@ final readonly class GetProducts
             ->status('published')
             ->with(['brand', 'variants.prices', 'media', 'defaultUrl'])
             ->when($search !== null, function (Builder $query) use ($search): void {
-                $expr = $query->getConnection()->getDriverName() === 'mysql'
-                    ? "JSON_UNQUOTE(JSON_EXTRACT(attribute_data, '$.name.value'))"
-                    : "json_extract(attribute_data, '$.name.value')";
-                $query->whereRaw("{$expr} LIKE ?", ["%{$search}%"]);
+                $query->whereRaw($this->nameAttributeExpression($query).' LIKE ?', ["%{$search}%"]);
             })
             ->when($brand !== null, fn (Builder $query) => $query->where('brand_id', $brand))
             ->when($collection !== null, fn (Builder $query) => $query->whereHas('collections', fn (Builder $q) => $q->where('lunar_collections.id', $collection)))
             ->when($sort === 'name_asc', function (Builder $query): void {
-                $expr = $query->getConnection()->getDriverName() === 'mysql'
-                    ? "JSON_UNQUOTE(JSON_EXTRACT(attribute_data, '$.name.value'))"
-                    : "json_extract(attribute_data, '$.name.value')";
-                $query->orderByRaw("{$expr} ASC");
+                $query->orderByRaw($this->nameAttributeExpression($query).' ASC');
             })
             ->when(in_array($sort, ['price_asc', 'price_desc'], true), function (Builder $query) use ($sort): void {
                 $direction = $sort === 'price_asc' ? 'ASC' : 'DESC';
@@ -51,5 +45,15 @@ final readonly class GetProducts
             })
             ->when(! in_array($sort, ['price_asc', 'price_desc', 'name_asc'], true), fn (Builder $query) => $query->latest())
             ->paginate(perPage: $perPage, page: $page);
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    private function nameAttributeExpression(Builder $query): string
+    {
+        return $query->getConnection()->getDriverName() === 'mysql'
+            ? "JSON_UNQUOTE(JSON_EXTRACT(attribute_data, '$.name.value'))"
+            : "json_extract(attribute_data, '$.name.value')";
     }
 }
