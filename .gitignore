@@ -31,3 +31,4 @@ Homestead.yaml
 /public/vendor/
 /storage/media-library/
 /memo.txt
+/tests/Browser/Screenshots/

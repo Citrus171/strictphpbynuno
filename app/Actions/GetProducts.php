@@ -9,6 +9,9 @@ use Lunar\Models\Product;
 
 final readonly class GetProducts
 {
+    /**
+     * @return LengthAwarePaginator<int, Product>
+     */
     public function handle(int $perPage = 12, int $page = 1): LengthAwarePaginator
     {
         return Product::query()

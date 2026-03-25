@@ -26,11 +26,11 @@ final readonly class ProductController
 
         return Inertia::render('products/index', [
             'products' => $products->through(fn (Product $product): array => [
-                'id' => $product->id,
+                'id' => (int) $product->id,
                 'name' => $product->translateAttribute('name'),
-                'brand' => $product->brand?->name,
-                'price' => $product->variants->first()?->prices->first()?->price->value,
-                'thumbnail' => $product->thumbnail?->getUrl('small') ?: null,
+                'brand' => data_get($product, 'brand.name'),
+                'price' => data_get($product, 'variants.0.prices.0.price.value'),
+                'thumbnail' => $product->getFirstMediaUrl('images', 'small') ?: null,
             ]),
         ]);
     }

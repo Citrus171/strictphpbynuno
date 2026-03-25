@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 use Lunar\Base\ValueObjects\Cart\TaxBreakdown;
 use Lunar\Base\ValueObjects\Cart\TaxBreakdownAmount;
 use Lunar\FieldTypes\Text;
@@ -22,6 +23,7 @@ use Lunar\Models\Product;
 use Lunar\Models\ProductType;
 use Lunar\Models\ProductVariant;
 use Lunar\Models\TaxClass;
+use RuntimeException;
 
 final class LunarDemoSeeder extends Seeder
 {
@@ -34,12 +36,16 @@ final class LunarDemoSeeder extends Seeder
         $productType = ProductType::query()->first();
         $country = Country::query()->first();
 
+        throw_if($channel === null || $currency === null || $customerGroup === null || $taxClass === null || $productType === null || $country === null, RuntimeException::class, 'Lunar seed prerequisites are missing.');
+
         // ブランド作成
+        /** @var Collection<int, Brand> $brands */
         $brands = collect([
             'Nike', 'Apple', 'Sony', 'Adidas', 'Samsung',
         ])->map(fn (string $name) => Brand::query()->create(['name' => $name]));
 
         // 商品カタログ
+        /** @var list<array{name: string, brand: string, price: int, sku: string}> $catalog */
         $catalog = [
             ['name' => 'Running Shoes Pro', 'brand' => 'Nike', 'price' => 12800, 'sku' => 'NK-RS-001'],
             ['name' => 'Training Shoes Air', 'brand' => 'Nike', 'price' => 9800, 'sku' => 'NK-TS-002'],
@@ -53,10 +59,15 @@ final class LunarDemoSeeder extends Seeder
             ['name' => 'Galaxy Tablet', 'brand' => 'Samsung', 'price' => 54000, 'sku' => 'SS-GT-002'],
         ];
 
+        /** @var Collection<int, array{variant: ProductVariant, price: int, name: string}> $variants */
         $variants = collect();
 
         foreach ($catalog as $item) {
             $brand = $brands->firstWhere('name', $item['brand']);
+
+            if (! $brand instanceof Brand) {
+                throw new RuntimeException('Brand not found for catalog item: '.$item['brand']);
+            }
 
             $product = Product::query()->create([
                 'product_type_id' => $productType->id,
@@ -108,6 +119,7 @@ final class LunarDemoSeeder extends Seeder
             ['first_name' => '健一', 'last_name' => '伊藤'],
         ];
 
+        /** @var Collection<int, Customer> $customers */
         $customers = collect();
         foreach ($customerData as $data) {
             $customer = Customer::query()->create([
@@ -123,7 +135,10 @@ final class LunarDemoSeeder extends Seeder
         $statuses = ['awaiting-payment', 'payment-received', 'processing', 'dispatched', 'cancelled'];
 
         for ($i = 0; $i < 20; $i++) {
+            /** @var Customer $customer */
             $customer = $customers->random();
+
+            /** @var array{variant: ProductVariant, price: int, name: string} $item */
             $item = $variants->random();
             $qty = fake()->numberBetween(1, 3);
             $unitPrice = $item['price'];
