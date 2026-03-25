@@ -1,3 +1,5 @@
+import { show } from '@/actions/App/Http/Controllers/ProductController';
+import { formatPrice } from '@/lib/format-price';
 import StorefrontLayout from '@/layouts/storefront-layout';
 import { Head, Link } from '@inertiajs/react';
 
@@ -29,16 +31,6 @@ interface Props {
     products: PaginatedProducts;
 }
 
-function formatPrice(price: number | null): string {
-    if (price === null) {
-        return '価格未設定';
-    }
-    return new Intl.NumberFormat('ja-JP', {
-        style: 'currency',
-        currency: 'JPY',
-    }).format(price);
-}
-
 export default function ProductsIndex({ products }: Props) {
     return (
         <StorefrontLayout>
@@ -64,7 +56,7 @@ export default function ProductsIndex({ products }: Props) {
                     {products.data.map((product) => (
                         <Link
                             key={product.id}
-                            href={product.slug ? `/products/${product.slug}` : '#'}
+                            href={product.slug ? show.url(product.slug) : '#'}
                             className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-neutral-700 dark:bg-neutral-800"
                         >
                             <div className="aspect-square overflow-hidden bg-gray-100 dark:bg-neutral-700">

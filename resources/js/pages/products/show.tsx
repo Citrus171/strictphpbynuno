@@ -1,5 +1,7 @@
+import { index as productsIndex } from '@/actions/App/Http/Controllers/ProductController';
+import { formatPrice } from '@/lib/format-price';
 import StorefrontLayout from '@/layouts/storefront-layout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 
 interface Product {
     id: number;
@@ -13,21 +15,19 @@ interface Props {
     product: Product;
 }
 
-function formatPrice(price: number | null): string {
-    if (price === null) {
-        return '価格未設定';
-    }
-
-    return new Intl.NumberFormat('ja-JP', {
-        style: 'currency',
-        currency: 'JPY',
-    }).format(price);
-}
-
 export default function ProductsShow({ product }: Props) {
     return (
         <StorefrontLayout>
             <Head title={`${product.name} | 商品詳細`} />
+
+            <div className="mb-6">
+                <Link
+                    href={productsIndex.url()}
+                    className="text-sm text-gray-500 transition-colors hover:text-gray-900 dark:text-neutral-400 dark:hover:text-white"
+                >
+                    ← 商品一覧に戻る
+                </Link>
+            </div>
 
             <article className="grid grid-cols-1 gap-8 lg:grid-cols-2">
                 <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-800">
@@ -57,12 +57,9 @@ export default function ProductsShow({ product }: Props) {
                             商品説明
                         </h2>
                         {product.description ? (
-                            <div
-                                className="prose prose-gray max-w-none text-sm leading-7 dark:prose-invert"
-                                dangerouslySetInnerHTML={{
-                                    __html: product.description,
-                                }}
-                            />
+                            <p className="whitespace-pre-line text-sm leading-7 text-gray-700 dark:text-neutral-300">
+                                {product.description}
+                            </p>
                         ) : (
                             <p className="text-sm text-gray-500 dark:text-neutral-400">
                                 説明文がありません

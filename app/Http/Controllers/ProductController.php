@@ -17,8 +17,8 @@ final readonly class ProductController
 
     public function index(Request $request): Response
     {
-        $perPage = (int) $request->integer('perPage', 12);
-        $page = (int) $request->integer('page', 1);
+        $perPage = $request->integer('perPage', 12);
+        $page = $request->integer('page', 1);
 
         $products = $this->getProducts->handle(perPage: $perPage, page: $page);
 
