@@ -16,7 +16,7 @@ final readonly class GetProducts
     {
         return Product::query()
             ->status('published')
-            ->with(['brand', 'variants.prices', 'media'])
+            ->with(['brand', 'variants.prices', 'media', 'defaultUrl'])
             ->latest()
             ->paginate(perPage: $perPage, page: $page);
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Lunar\Models\Language;
 use Lunar\Models\Product;
+use Lunar\Models\Url;
 
 uses(RefreshDatabase::class);
 
@@ -57,4 +58,33 @@ it('ページネーションが動作すること', function (): void {
         ->assertInertia(fn ($page) => $page
             ->has('products.data', 3)
             ->where('products.current_page', 2));
+});
+
+it('/products/{slug}にアクセスした時、商品詳細ページが表示されること', function (): void {
+    $product = Product::factory()->create(['status' => 'published']);
+
+    Url::factory()->create([
+        'language_id' => Language::query()->where('default', true)->value('id'),
+        'element_type' => Product::morphName(),
+        'element_id' => $product->id,
+        'slug' => 'sample-product',
+        'default' => true,
+    ]);
+
+    $response = $this->get('/products/sample-product');
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('products/show')
+            ->where('product.id', $product->id)
+            ->has('product.name')
+            ->has('product.price')
+            ->has('product.description')
+            ->has('product.mainImage'));
+});
+
+it('存在しないslugで商品詳細にアクセスした時、404を返すこと', function (): void {
+    $response = $this->get('/products/not-found-product');
+
+    $response->assertNotFound();
 });
