@@ -47,6 +47,7 @@ tests/
 │       │   ├── 在庫切れバリアントの時、inStockがfalseになること
 │       │   ├── 商品詳細propsに全画像一覧が含まれること
 │       │   ├── 商品に画像がある時、imagesにURLが含まれること
+│       │   ├── バリアントにオプション値がある時、optionsにname・valueが含まれること
 │       │   └── 商品詳細propsに関連商品が含まれること
 │       ├── SessionControllerTest
 │       │   ├── renders login page

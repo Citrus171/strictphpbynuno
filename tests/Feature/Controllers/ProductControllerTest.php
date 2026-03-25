@@ -10,6 +10,8 @@ use Lunar\Models\Brand;
 use Lunar\Models\Language;
 use Lunar\Models\Product;
 use Lunar\Models\ProductAssociation;
+use Lunar\Models\ProductOption;
+use Lunar\Models\ProductOptionValue;
 use Lunar\Models\ProductVariant;
 use Lunar\Models\Url;
 
@@ -252,6 +254,36 @@ it('商品に画像がある時、imagesにURLが含まれること', function (
             ->has('product.images', 1)
             ->has('product.images.0.url')
             ->has('product.images.0.thumbnail'));
+});
+
+it('バリアントにオプション値がある時、optionsにname・valueが含まれること', function (): void {
+    $product = Product::factory()->create(['status' => 'published']);
+
+    $option = ProductOption::factory()->create();
+    $optionValue = ProductOptionValue::factory()->create(['product_option_id' => $option->id]);
+
+    $variant = ProductVariant::factory()->create([
+        'product_id' => $product->id,
+        'purchasable' => 'in_stock',
+        'stock' => 5,
+    ]);
+    $variant->values()->attach($optionValue->id);
+
+    Url::factory()->create([
+        'language_id' => Language::query()->where('default', true)->value('id'),
+        'element_type' => Product::morphName(),
+        'element_id' => $product->id,
+        'slug' => 'option-product',
+        'default' => true,
+    ]);
+
+    $response = $this->get('/products/option-product');
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('product.variants.0.options', 1)
+            ->has('product.variants.0.options.0.name')
+            ->has('product.variants.0.options.0.value'));
 });
 
 it('商品詳細propsに関連商品が含まれること', function (): void {
