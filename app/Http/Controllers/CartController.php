@@ -14,6 +14,7 @@ use App\Http\Requests\UpdateCartItemRequest;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
+use Lunar\DataTypes\ShippingOption;
 use Lunar\Facades\CartSession;
 use Lunar\Facades\ShippingManifest;
 use Lunar\Models\CartLine;
@@ -33,11 +34,17 @@ final readonly class CartController
     {
         $cart = CartSession::current();
 
+        /** @var array<int, array{cartLineId: int, variantId: int, productName: string, variantOptions: string, sku: string|null, quantity: int, unitPrice: int|null, subTotal: int|null}> $items */
         $items = [];
+        /** @var int|null $subTotal */
         $subTotal = null;
+        /** @var int|null $total */
         $total = null;
+        /** @var string|null $couponCode */
         $couponCode = null;
+        /** @var int|null $discountTotal */
         $discountTotal = null;
+        /** @var array<int, array{identifier: string, name: string, description: string, price: int}> $shippingOptions */
         $shippingOptions = [];
 
         if ($cart) {
@@ -72,7 +79,7 @@ final readonly class CartController
             $discountTotal = $cart->discountTotal?->value;
 
             $shippingOptions = ShippingManifest::getOptions($cart)
-                ->map(fn ($option) => [
+                ->map(fn (ShippingOption $option) => [
                     'identifier' => $option->getIdentifier(),
                     'name' => $option->getName(),
                     'description' => $option->getDescription(),
