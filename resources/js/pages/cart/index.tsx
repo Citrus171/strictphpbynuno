@@ -170,7 +170,6 @@ export default function CartIndex({
                             ) : (
                                 <Form
                                     {...cartApplyCoupon.form()}
-                                    preserveScroll
                                 >
                                     {({ errors, processing }) => (
                                         <div className="flex gap-2">

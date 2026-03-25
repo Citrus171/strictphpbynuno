@@ -12,6 +12,7 @@ use App\Http\Requests\AddToCartRequest;
 use App\Http\Requests\ApplyCouponRequest;
 use App\Http\Requests\UpdateCartItemRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lunar\DataTypes\ShippingOption;
@@ -50,8 +51,8 @@ final readonly class CartController
         if ($cart) {
             $cart = $cart->calculate();
 
-            /** @var Collection<int, CartLine> $lines */
             $cart->lines->loadMissing('purchasable.product');
+            /** @var Collection<int, CartLine> $lines */
             $lines = $cart->lines;
 
             foreach ($lines as $line) {
@@ -78,7 +79,9 @@ final readonly class CartController
             $couponCode = $cart->coupon_code;
             $discountTotal = $cart->discountTotal?->value;
 
-            $shippingOptions = ShippingManifest::getOptions($cart)
+            /** @var Collection<int, ShippingOption> $rawShippingOptions */
+            $rawShippingOptions = ShippingManifest::getOptions($cart);
+            $shippingOptions = $rawShippingOptions
                 ->map(fn (ShippingOption $option): array => [
                     'identifier' => $option->getIdentifier(),
                     'name' => $option->getName(),
@@ -128,7 +131,11 @@ final readonly class CartController
 
     public function applyCoupon(ApplyCouponRequest $request): RedirectResponse
     {
-        $cart = CartSession::manager();
+        $cart = CartSession::current();
+
+        if (! $cart) {
+            return back();
+        }
 
         $applied = $this->applyCoupon->handle($cart, $request->string('couponCode')->value());
 

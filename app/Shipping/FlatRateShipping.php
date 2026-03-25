@@ -16,6 +16,8 @@ final class FlatRateShipping
 {
     /**
      * 送料オプションをマニフェストに追加する。
+     *
+     * @param  Closure(Cart): Cart  $next
      */
     public function handle(Cart $cart, Closure $next): Cart
     {
