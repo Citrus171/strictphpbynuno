@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Lunar\Base\StandardMediaDefinitions;
 
 return [
@@ -16,8 +18,8 @@ return [
     'collection' => 'images',
 
     'fallback' => [
-        'url' => env('FALLBACK_IMAGE_URL', null),
-        'path' => env('FALLBACK_IMAGE_PATH', null),
+        'url' => env('FALLBACK_IMAGE_URL'),
+        'path' => env('FALLBACK_IMAGE_PATH'),
     ],
 
 ];
