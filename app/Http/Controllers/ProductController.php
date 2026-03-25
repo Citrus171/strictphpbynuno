@@ -15,6 +15,7 @@ use Lunar\Models\Product;
 use Lunar\Models\ProductAssociation;
 use Lunar\Models\ProductOptionValue;
 use Lunar\Models\ProductVariant;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 final readonly class ProductController
 {
@@ -75,10 +76,10 @@ final readonly class ProductController
                 'price' => data_get($product, 'variants.0.prices.0.price.value'),
                 'description' => $product->translateAttribute('description'),
                 'mainImage' => $product->getFirstMediaUrl('images') ?: null,
-                'images' => $product->getMedia('images')->map(fn (\Spatie\MediaLibrary\MediaCollections\Models\Media $media): array => [
+                'images' => $product->getMedia('images')->map(fn (Media $media): array => [
                     'url' => $media->getUrl() ?: null,
                     'thumbnail' => $media->getUrl('small') ?: $media->getUrl() ?: null,
-                ])->values()->toArray(),
+                ])->values()->all(),
                 'variants' => $product->variants->map(fn (ProductVariant $variant): array => [
                     'id' => (int) $variant->id,
                     'sku' => $variant->sku,
