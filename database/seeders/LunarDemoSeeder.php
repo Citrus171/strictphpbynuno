@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Lunar\Base\ValueObjects\Cart\TaxBreakdown;
 use Lunar\Base\ValueObjects\Cart\TaxBreakdownAmount;
+use Lunar\FieldTypes\Text;
 use Lunar\Models\Brand;
 use Lunar\Models\Channel;
 use Lunar\Models\Country;
@@ -21,7 +22,6 @@ use Lunar\Models\Product;
 use Lunar\Models\ProductType;
 use Lunar\Models\ProductVariant;
 use Lunar\Models\TaxClass;
-use Lunar\FieldTypes\Text;
 
 final class LunarDemoSeeder extends Seeder
 {
@@ -147,7 +147,7 @@ final class LunarDemoSeeder extends Seeder
                 'user_id' => null,
                 'customer_id' => $customer->id,
                 'status' => fake()->randomElement($statuses),
-                'reference' => strtoupper(fake()->unique()->bothify('??-######')),
+                'reference' => mb_strtoupper(fake()->unique()->bothify('??-######')),
                 'sub_total' => $subTotal,
                 'discount_total' => 0,
                 'shipping_total' => $shipping,
