@@ -15,6 +15,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lunar\Facades\CartSession;
 use Lunar\Models\CartLine;
+use Lunar\Models\Product;
 use Lunar\Models\ProductVariant;
 
 final readonly class CartController
@@ -36,21 +37,24 @@ final readonly class CartController
             /** @var Collection<int, CartLine> $lines */
             $lines = $cart->lines()->with('purchasable.product')->get();
 
-            $items = $lines->map(function (CartLine $line): array {
+            foreach ($lines as $line) {
                 /** @var ProductVariant $variant */
                 $variant = $line->purchasable;
 
-                return [
+                /** @var Product $product */
+                $product = $variant->product;
+
+                $items[] = [
                     'cartLineId' => (int) $line->id,
                     'variantId' => (int) $variant->id,
-                    'productName' => $variant->product->translateAttribute('name'),
+                    'productName' => $product->translateAttribute('name'),
                     'variantOptions' => '',
                     'sku' => $variant->sku,
                     'quantity' => (int) $line->quantity,
                     'unitPrice' => $line->unitPrice?->value,
                     'subTotal' => $line->subTotal?->value,
                 ];
-            })->values()->all();
+            }
 
             $total = $cart->total?->value;
         }
