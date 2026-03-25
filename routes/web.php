@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserEmailResetNotificationController;
@@ -14,6 +15,9 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', fn () => Inertia::render('welcome'))->name('home');
+
+// Storefront...
+Route::get('products', [ProductController::class, 'index'])->name('products.index');
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('dashboard', fn () => Inertia::render('dashboard'))->name('dashboard');
