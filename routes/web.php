@@ -18,6 +18,7 @@ Route::get('/', fn () => Inertia::render('welcome'))->name('home');
 
 // Storefront...
 Route::get('products', [ProductController::class, 'index'])->name('products.index');
+Route::get('products/{slug}', [ProductController::class, 'show'])->name('products.show');
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('dashboard', fn () => Inertia::render('dashboard'))->name('dashboard');

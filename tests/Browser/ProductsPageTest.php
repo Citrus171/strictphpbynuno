@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Lunar\FieldTypes\Text;
 use Lunar\Models\Language;
 use Lunar\Models\Product;
+use Lunar\Models\Url;
 
 uses(RefreshDatabase::class);
 
@@ -47,5 +48,30 @@ it('商品がない場合に空状態メッセージが表示されること', f
     $page = visit('/products');
 
     $page->assertSee('商品がありません')
+        ->assertNoJavascriptErrors();
+});
+
+it('商品カードをクリックした時、商品詳細ページへ遷移できること', function (): void {
+    $product = Product::factory()->create([
+        'status' => 'published',
+        'attribute_data' => collect([
+            'name' => new Text('遷移テスト商品'),
+            'description' => new Text('詳細説明です'),
+        ]),
+    ]);
+
+    Url::factory()->create([
+        'language_id' => Language::query()->where('default', true)->value('id'),
+        'element_type' => Product::morphName(),
+        'element_id' => $product->id,
+        'slug' => 'transition-product',
+        'default' => true,
+    ]);
+
+    $page = visit('/products');
+
+    $page->click('遷移テスト商品')
+        ->assertSee('遷移テスト商品')
+        ->assertSee('詳細説明です')
         ->assertNoJavascriptErrors();
 });
