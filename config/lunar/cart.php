@@ -10,7 +10,6 @@ use Lunar\Actions\Carts\GetExistingCartLine;
 use Lunar\Actions\Carts\RemovePurchasable;
 use Lunar\Actions\Carts\SetShippingOption;
 use Lunar\Actions\Carts\UpdateCartLine;
-use Lunar\Pipelines\Cart\ApplyDiscounts;
 use Lunar\Pipelines\Cart\ApplyShipping;
 use Lunar\Pipelines\Cart\Calculate;
 use Lunar\Pipelines\Cart\CalculateLines;
@@ -66,7 +65,6 @@ return [
         'cart' => [
             CalculateLines::class,
             ApplyShipping::class,
-            ApplyDiscounts::class,
             CalculateTax::class,
             Calculate::class,
         ],

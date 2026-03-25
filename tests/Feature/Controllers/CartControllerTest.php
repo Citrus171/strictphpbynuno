@@ -81,12 +81,12 @@ it('カートが空の時、itemsが空配列であること', function (): void
 it('バリアントIDと数量を送信した時、カートにアイテムが追加されること', function (): void {
     $variant = createVariantWithPrice(price: 1500, stock: 10);
 
-    $response = $this->postJson(route('cart.items.store'), [
+    $response = $this->post(route('cart.items.store'), [
         'variantId' => $variant->id,
         'quantity' => 2,
     ]);
 
-    $response->assertOk();
+    $response->assertRedirect();
 
     $this->assertDatabaseHas('lunar_cart_lines', [
         'purchasable_type' => $variant->getMorphClass(),
@@ -98,8 +98,8 @@ it('バリアントIDと数量を送信した時、カートにアイテムが�
 it('同じバリアントを2回追加した時、数量が加算されること', function (): void {
     $variant = createVariantWithPrice(price: 1000, stock: 10);
 
-    $this->postJson(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
-    $this->postJson(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 2]);
+    $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
+    $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 2]);
 
     $this->assertDatabaseHas('lunar_cart_lines', [
         'purchasable_type' => $variant->getMorphClass(),
@@ -114,15 +114,15 @@ it('同じバリアントを2回追加した時、数量が加算されること
 it('カートラインIDと数量を送信した時、数量が更新されること', function (): void {
     $variant = createVariantWithPrice(price: 1000, stock: 10);
 
-    $this->postJson(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
+    $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
 
     $cartLine = CartLine::query()->where('purchasable_id', $variant->id)->firstOrFail();
 
-    $response = $this->patchJson(route('cart.items.update', $cartLine->id), [
+    $response = $this->patch(route('cart.items.update', $cartLine->id), [
         'quantity' => 5,
     ]);
 
-    $response->assertOk();
+    $response->assertRedirect();
 
     $this->assertDatabaseHas('lunar_cart_lines', [
         'id' => $cartLine->id,
@@ -135,13 +135,13 @@ it('カートラインIDと数量を送信した時、数量が更新される�
 it('カートラインIDを指定した時、アイテムが削除されること', function (): void {
     $variant = createVariantWithPrice(price: 1000, stock: 10);
 
-    $this->postJson(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
+    $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
 
     $cartLine = CartLine::query()->where('purchasable_id', $variant->id)->firstOrFail();
 
-    $response = $this->deleteJson(route('cart.items.destroy', $cartLine->id));
+    $response = $this->delete(route('cart.items.destroy', $cartLine->id));
 
-    $response->assertOk();
+    $response->assertRedirect();
 
     $this->assertDatabaseMissing('lunar_cart_lines', ['id' => $cartLine->id]);
 });
@@ -151,7 +151,7 @@ it('カートラインIDを指定した時、アイテムが削除されるこ�
 it('カートに追加後、GETでitemsに商品名・数量・小計が含まれること', function (): void {
     $variant = createVariantWithPrice(price: 2000, stock: 10);
 
-    $this->postJson(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 2]);
+    $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 2]);
 
     $response = $this->get(route('cart.index'));
 
@@ -170,7 +170,7 @@ it('カートに追加後、GETでitemsに商品名・数量・小計が含ま�
 it('カートに追加後、GETでtotalが含まれること', function (): void {
     $variant = createVariantWithPrice(price: 3000, stock: 10);
 
-    $this->postJson(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
+    $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
 
     $response = $this->get(route('cart.index'));
 

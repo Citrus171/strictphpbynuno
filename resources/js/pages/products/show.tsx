@@ -203,23 +203,38 @@ export default function ProductsShow({ product }: Props) {
                     )}
 
                     {/* カートに追加ボタン */}
-                    <Form
-                        {...cartStore.form()}
-                        preserveScroll
-                    >
-                        <input
-                            type="hidden"
-                            name="variantId"
-                            value={selectedVariant?.id ?? ''}
-                        />
-                        <input type="hidden" name="quantity" value={1} />
-                        <button
-                            type="submit"
-                            disabled={!inStock || selectedVariant === null}
-                            className="w-full rounded-xl bg-gray-900 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:bg-gray-300 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 dark:disabled:bg-neutral-700 dark:disabled:text-neutral-500"
-                        >
-                            {inStock ? 'カートに追加' : '在庫切れ'}
-                        </button>
+                    <Form {...cartStore.form()}>
+                        {({ processing, recentlySuccessful }) => (
+                            <>
+                                <input
+                                    type="hidden"
+                                    name="variantId"
+                                    value={selectedVariant?.id ?? ''}
+                                />
+                                <input
+                                    type="hidden"
+                                    name="quantity"
+                                    value={1}
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={
+                                        processing ||
+                                        !inStock ||
+                                        selectedVariant === null
+                                    }
+                                    className="w-full rounded-xl bg-gray-900 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:bg-gray-300 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 dark:disabled:bg-neutral-700 dark:disabled:text-neutral-500"
+                                >
+                                    {processing
+                                        ? '追加中...'
+                                        : recentlySuccessful
+                                          ? '✓ 追加しました'
+                                          : inStock
+                                            ? 'カートに追加'
+                                            : '在庫切れ'}
+                                </button>
+                            </>
+                        )}
                     </Form>
 
                     {/* 商品説明 */}

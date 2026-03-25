@@ -10,7 +10,7 @@ use App\Actions\UpdateCartItem;
 use App\Http\Requests\AddToCartRequest;
 use App\Http\Requests\UpdateCartItemRequest;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lunar\Facades\CartSession;
@@ -65,30 +65,30 @@ final readonly class CartController
         ]);
     }
 
-    public function store(AddToCartRequest $request): JsonResponse
+    public function store(AddToCartRequest $request): RedirectResponse
     {
         $this->addToCart->handle(
             variantId: $request->integer('variantId'),
             quantity: $request->integer('quantity'),
         );
 
-        return response()->json(['message' => 'Added to cart']);
+        return back();
     }
 
-    public function update(UpdateCartItemRequest $request, int $cartLineId): JsonResponse
+    public function update(UpdateCartItemRequest $request, int $cartLineId): RedirectResponse
     {
         $this->updateCartItem->handle(
             cartLineId: $cartLineId,
             quantity: $request->integer('quantity'),
         );
 
-        return response()->json(['message' => 'Cart updated']);
+        return back();
     }
 
-    public function destroy(int $cartLineId): JsonResponse
+    public function destroy(int $cartLineId): RedirectResponse
     {
         $this->removeFromCart->handle(cartLineId: $cartLineId);
 
-        return response()->json(['message' => 'Item removed']);
+        return back();
     }
 }
