@@ -178,3 +178,94 @@ it('カートに追加後、GETでtotalが含まれること', function (): void
         ->assertInertia(fn ($page) => $page
             ->whereNot('total', null));
 });
+
+// ─── Slice 7: クーポン適用エンドポイント ──────────────────────────────────────
+
+it('有効なクーポンコードを送信した時、カートに適用されリダイレクトされること', function (): void {
+    $variant = createVariantWithPrice(price: 1000, stock: 10);
+    $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
+
+    Lunar\Models\Discount::factory()->create([
+        'coupon' => 'VALID10',
+        'type' => Lunar\DiscountTypes\AmountOff::class,
+        'starts_at' => now()->subDay(),
+        'data' => ['fixed_value' => false, 'percentage' => 10],
+    ]);
+
+    $response = $this->post(route('cart.coupon.store'), [
+        'couponCode' => 'VALID10',
+    ]);
+
+    $response->assertRedirect();
+    $this->assertDatabaseHas('lunar_carts', ['coupon_code' => 'VALID10']);
+});
+
+it('無効なクーポンコードを送信した時、エラーがセッションに入ること', function (): void {
+    $variant = createVariantWithPrice(price: 1000, stock: 10);
+    $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
+
+    $response = $this->post(route('cart.coupon.store'), [
+        'couponCode' => 'BADCODE',
+    ]);
+
+    $response->assertRedirect()
+        ->assertSessionHasErrors('couponCode');
+});
+
+it('クーポン適用後にGETするとcouponCodeとdiscountTotalが含まれること', function (): void {
+    $variant = createVariantWithPrice(price: 1000, stock: 10);
+    $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
+
+    Lunar\Models\Discount::factory()->create([
+        'coupon' => 'DISC20',
+        'type' => Lunar\DiscountTypes\AmountOff::class,
+        'starts_at' => now()->subDay(),
+        'data' => ['fixed_value' => false, 'percentage' => 20],
+    ]);
+    $this->post(route('cart.coupon.store'), ['couponCode' => 'DISC20']);
+
+    $response = $this->get(route('cart.index'));
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('couponCode')
+            ->has('discountTotal')
+            ->where('couponCode', 'DISC20'));
+});
+
+it('クーポンが未適用の時、GETでcouponCodeがnullであること', function (): void {
+    $response = $this->get(route('cart.index'));
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('couponCode', null));
+});
+
+// ─── Slice 8: 送料オプション ───────────────────────────────────────────────────
+
+it('GETでshippingOptionsが配列として返されること', function (): void {
+    $response = $this->get(route('cart.index'));
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('shippingOptions'));
+});
+
+it('送料オプションが登録されている時、identifier・name・priceが含まれること', function (): void {
+    $variant = createVariantWithPrice(price: 1000, stock: 10);
+    $this->post(route('cart.items.store'), ['variantId' => $variant->id, 'quantity' => 1]);
+
+    $response = $this->get(route('cart.index'));
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('shippingOptions', fn ($options) => $options
+                ->each(fn ($option) => $option
+                    ->has('identifier')
+                    ->has('name')
+                    ->has('price')
+                    ->etc()
+                )
+            )
+        );
+});

@@ -5,15 +5,17 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\AddToCart;
+use App\Actions\ApplyCoupon;
 use App\Actions\RemoveFromCart;
 use App\Actions\UpdateCartItem;
 use App\Http\Requests\AddToCartRequest;
+use App\Http\Requests\ApplyCouponRequest;
 use App\Http\Requests\UpdateCartItemRequest;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lunar\Facades\CartSession;
+use Lunar\Facades\ShippingManifest;
 use Lunar\Models\CartLine;
 use Lunar\Models\Product;
 use Lunar\Models\ProductVariant;
@@ -24,6 +26,7 @@ final readonly class CartController
         private AddToCart $addToCart,
         private UpdateCartItem $updateCartItem,
         private RemoveFromCart $removeFromCart,
+        private ApplyCoupon $applyCoupon,
     ) {}
 
     public function index(): Response
@@ -31,11 +34,18 @@ final readonly class CartController
         $cart = CartSession::current();
 
         $items = [];
+        $subTotal = null;
         $total = null;
+        $couponCode = null;
+        $discountTotal = null;
+        $shippingOptions = [];
 
         if ($cart) {
+            $cart = $cart->calculate();
+
             /** @var Collection<int, CartLine> $lines */
-            $lines = $cart->lines()->with('purchasable.product')->get();
+            $cart->lines->loadMissing('purchasable.product');
+            $lines = $cart->lines;
 
             foreach ($lines as $line) {
                 /** @var ProductVariant $variant */
@@ -57,11 +67,28 @@ final readonly class CartController
             }
 
             $total = $cart->total?->value;
+            $subTotal = $cart->subTotal?->value;
+            $couponCode = $cart->coupon_code;
+            $discountTotal = $cart->discountTotal?->value;
+
+            $shippingOptions = ShippingManifest::getOptions($cart)
+                ->map(fn ($option) => [
+                    'identifier' => $option->getIdentifier(),
+                    'name' => $option->getName(),
+                    'description' => $option->getDescription(),
+                    'price' => $option->getPrice()->value,
+                ])
+                ->values()
+                ->toArray();
         }
 
         return Inertia::render('cart/index', [
             'items' => $items,
+            'subTotal' => $subTotal,
             'total' => $total,
+            'couponCode' => $couponCode,
+            'discountTotal' => $discountTotal,
+            'shippingOptions' => $shippingOptions,
         ]);
     }
 
@@ -88,6 +115,31 @@ final readonly class CartController
     public function destroy(int $cartLineId): RedirectResponse
     {
         $this->removeFromCart->handle(cartLineId: $cartLineId);
+
+        return back();
+    }
+
+    public function applyCoupon(ApplyCouponRequest $request): RedirectResponse
+    {
+        $cart = CartSession::manager();
+
+        $applied = $this->applyCoupon->handle($cart, $request->string('couponCode')->value());
+
+        if (! $applied) {
+            return back()->withErrors(['couponCode' => 'このクーポンコードは無効です。']);
+        }
+
+        return back();
+    }
+
+    public function removeCoupon(): RedirectResponse
+    {
+        $cart = CartSession::current();
+
+        if ($cart) {
+            $cart->coupon_code = null;
+            $cart->save();
+        }
 
         return back();
     }
