@@ -18,7 +18,7 @@ it('公開済み商品をページネーション付きで取得できること'
     Product::factory()->count(3)->create(['status' => 'published']);
     Product::factory()->create(['status' => 'draft']);
 
-    $result = app(GetProducts::class)->handle();
+    $result = resolve(GetProducts::class)->handle();
 
     expect($result)->toBeInstanceOf(LengthAwarePaginator::class)
         ->and($result->total())->toBe(3);
@@ -27,7 +27,7 @@ it('公開済み商品をページネーション付きで取得できること'
 it('デフォルトで12件ずつ取得すること', function (): void {
     Product::factory()->count(15)->create(['status' => 'published']);
 
-    $result = app(GetProducts::class)->handle();
+    $result = resolve(GetProducts::class)->handle();
 
     expect($result->perPage())->toBe(12)
         ->and($result->count())->toBe(12);
@@ -36,7 +36,7 @@ it('デフォルトで12件ずつ取得すること', function (): void {
 it('ページ番号を指定して取得できること', function (): void {
     Product::factory()->count(15)->create(['status' => 'published']);
 
-    $result = app(GetProducts::class)->handle(perPage: 12, page: 2);
+    $result = resolve(GetProducts::class)->handle(perPage: 12, page: 2);
 
     expect($result->currentPage())->toBe(2)
         ->and($result->count())->toBe(3);

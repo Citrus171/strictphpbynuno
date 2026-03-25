@@ -25,7 +25,7 @@ final readonly class ProductController
         $products = $this->getProducts->handle(perPage: $perPage, page: $page);
 
         return Inertia::render('products/index', [
-            'products' => $products->through(fn (Product $product) => [
+            'products' => $products->through(fn (Product $product): array => [
                 'id' => $product->id,
                 'name' => $product->translateAttribute('name'),
                 'brand' => $product->brand?->name,

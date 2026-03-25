@@ -31,13 +31,13 @@ final class LunarDemoSeeder extends Seeder
         $currency = Currency::whereDefault(true)->first();
         $customerGroup = CustomerGroup::whereDefault(true)->first();
         $taxClass = TaxClass::whereDefault(true)->first();
-        $productType = ProductType::first();
-        $country = Country::first();
+        $productType = ProductType::query()->first();
+        $country = Country::query()->first();
 
         // ブランド作成
         $brands = collect([
             'Nike', 'Apple', 'Sony', 'Adidas', 'Samsung',
-        ])->map(fn (string $name) => Brand::create(['name' => $name]));
+        ])->map(fn (string $name) => Brand::query()->create(['name' => $name]));
 
         // 商品カタログ
         $catalog = [
@@ -58,7 +58,7 @@ final class LunarDemoSeeder extends Seeder
         foreach ($catalog as $item) {
             $brand = $brands->firstWhere('name', $item['brand']);
 
-            $product = Product::create([
+            $product = Product::query()->create([
                 'product_type_id' => $productType->id,
                 'status' => 'published',
                 'brand_id' => $brand->id,
@@ -79,7 +79,7 @@ final class LunarDemoSeeder extends Seeder
                 'visible' => true,
             ]);
 
-            $variant = ProductVariant::create([
+            $variant = ProductVariant::query()->create([
                 'product_id' => $product->id,
                 'tax_class_id' => $taxClass->id,
                 'sku' => $item['sku'],
@@ -88,7 +88,7 @@ final class LunarDemoSeeder extends Seeder
                 'shippable' => true,
             ]);
 
-            Price::create([
+            Price::query()->create([
                 'priceable_type' => ProductVariant::morphName(),
                 'priceable_id' => $variant->id,
                 'currency_id' => $currency->id,
@@ -110,7 +110,7 @@ final class LunarDemoSeeder extends Seeder
 
         $customers = collect();
         foreach ($customerData as $data) {
-            $customer = Customer::create([
+            $customer = Customer::query()->create([
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
                 'company_name' => null,
@@ -141,7 +141,7 @@ final class LunarDemoSeeder extends Seeder
                 ),
             ]));
 
-            $order = Order::create([
+            $order = Order::query()->create([
                 'channel_id' => $channel->id,
                 'new_customer' => $i < 10,
                 'user_id' => null,
@@ -162,7 +162,7 @@ final class LunarDemoSeeder extends Seeder
                 'meta' => [],
             ]);
 
-            OrderLine::create([
+            OrderLine::query()->create([
                 'order_id' => $order->id,
                 'purchasable_type' => ProductVariant::morphName(),
                 'purchasable_id' => $item['variant']->id,
@@ -182,7 +182,7 @@ final class LunarDemoSeeder extends Seeder
                 'meta' => [],
             ]);
 
-            OrderAddress::create([
+            OrderAddress::query()->create([
                 'order_id' => $order->id,
                 'type' => 'shipping',
                 'first_name' => $customer->first_name,
