@@ -49,10 +49,15 @@ final readonly class GetProducts
 
     /**
      * @codeCoverageIgnore
+     *
+     * @param  Builder<Product>  $query
      */
     private function nameAttributeExpression(Builder $query): string
     {
-        return $query->getConnection()->getDriverName() === 'mysql'
+        /** @var \Illuminate\Database\Connection $connection */
+        $connection = $query->getConnection();
+
+        return $connection->getDriverName() === 'mysql'
             ? "JSON_UNQUOTE(JSON_EXTRACT(attribute_data, '$.name.value'))"
             : "json_extract(attribute_data, '$.name.value')";
     }

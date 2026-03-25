@@ -35,6 +35,9 @@ final readonly class ProductController
             search: $search,
         );
 
+        /** @var \Illuminate\Database\Eloquent\Collection<int, Collection> $collections */
+        $collections = Collection::query()->get();
+
         return Inertia::render('products/index', [
             'products' => $products->through(fn (Product $product): array => [
                 'id' => (int) $product->id,
@@ -54,9 +57,7 @@ final readonly class ProductController
                 ->orderBy('name')
                 ->get()
                 ->map(fn (Brand $b): array => ['id' => (int) $b->id, 'name' => $b->name]),
-            'collections' => Collection::query()
-                ->get()
-                ->map(fn (Collection $c): array => ['id' => (int) $c->id, 'name' => $c->translateAttribute('name')]),
+            'collections' => $collections->map(fn (Collection $c): array => ['id' => (int) $c->id, 'name' => $c->translateAttribute('name')]),
         ]);
     }
 
