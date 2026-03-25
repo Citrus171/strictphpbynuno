@@ -1,6 +1,6 @@
 import { index as productsIndex } from '@/actions/App/Http/Controllers/ProductController';
-import { formatPrice } from '@/lib/format-price';
 import StorefrontLayout from '@/layouts/storefront-layout';
+import { formatPrice } from '@/lib/format-price';
 import { Head, Link } from '@inertiajs/react';
 
 interface Product {
@@ -57,7 +57,7 @@ export default function ProductsShow({ product }: Props) {
                             商品説明
                         </h2>
                         {product.description ? (
-                            <p className="whitespace-pre-line text-sm leading-7 text-gray-700 dark:text-neutral-300">
+                            <p className="text-sm leading-7 whitespace-pre-line text-gray-700 dark:text-neutral-300">
                                 {product.description}
                             </p>
                         ) : (

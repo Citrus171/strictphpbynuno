@@ -1,6 +1,6 @@
 import { show } from '@/actions/App/Http/Controllers/ProductController';
-import { formatPrice } from '@/lib/format-price';
 import StorefrontLayout from '@/layouts/storefront-layout';
+import { formatPrice } from '@/lib/format-price';
 import { Head, Link } from '@inertiajs/react';
 
 interface Product {
