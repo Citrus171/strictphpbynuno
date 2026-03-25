@@ -3,10 +3,16 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Lunar\FieldTypes\Text;
 use Lunar\Models\Brand;
 use Lunar\Models\Language;
 use Lunar\Models\Product;
+use Lunar\Models\ProductAssociation;
+use Lunar\Models\ProductOption;
+use Lunar\Models\ProductOptionValue;
+use Lunar\Models\ProductVariant;
 use Lunar\Models\Url;
 
 uses(RefreshDatabase::class);
@@ -123,4 +129,189 @@ it('存在しないslugで商品詳細にアクセスした時、404を返すこ
     $response = $this->get('/products/not-found-product');
 
     $response->assertNotFound();
+});
+
+it('商品詳細propsにバリアント情報（SKU・価格・在庫）が含まれること', function (): void {
+    $product = Product::factory()->create(['status' => 'published']);
+
+    ProductVariant::factory()->create([
+        'product_id' => $product->id,
+        'sku' => 'CTRL-SKU-001',
+        'stock' => 3,
+        'purchasable' => 'in_stock',
+    ]);
+
+    Url::factory()->create([
+        'language_id' => Language::query()->where('default', true)->value('id'),
+        'element_type' => Product::morphName(),
+        'element_id' => $product->id,
+        'slug' => 'variant-product',
+        'default' => true,
+    ]);
+
+    $response = $this->get('/products/variant-product');
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('products/show')
+            ->has('product.variants')
+            ->has('product.variants.0.id')
+            ->has('product.variants.0.sku')
+            ->has('product.variants.0.price')
+            ->has('product.variants.0.stock')
+            ->has('product.variants.0.inStock')
+            ->has('product.variants.0.options'));
+});
+
+it('purchasableがalwaysのバリアントの時、inStockがtrueになること', function (): void {
+    $product = Product::factory()->create(['status' => 'published']);
+
+    ProductVariant::factory()->create([
+        'product_id' => $product->id,
+        'sku' => 'ALWAYS-SKU',
+        'stock' => 0,
+        'purchasable' => 'always',
+    ]);
+
+    Url::factory()->create([
+        'language_id' => Language::query()->where('default', true)->value('id'),
+        'element_type' => Product::morphName(),
+        'element_id' => $product->id,
+        'slug' => 'always-product',
+        'default' => true,
+    ]);
+
+    $response = $this->get('/products/always-product');
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('product.variants.0.inStock', true));
+});
+
+it('在庫切れバリアントの時、inStockがfalseになること', function (): void {
+    $product = Product::factory()->create(['status' => 'published']);
+
+    ProductVariant::factory()->create([
+        'product_id' => $product->id,
+        'sku' => 'OUT-SKU',
+        'stock' => 0,
+        'purchasable' => 'out_of_stock',
+    ]);
+
+    Url::factory()->create([
+        'language_id' => Language::query()->where('default', true)->value('id'),
+        'element_type' => Product::morphName(),
+        'element_id' => $product->id,
+        'slug' => 'out-of-stock-product',
+        'default' => true,
+    ]);
+
+    $response = $this->get('/products/out-of-stock-product');
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('product.variants.0.inStock', false));
+});
+
+it('商品詳細propsに全画像一覧が含まれること', function (): void {
+    $product = Product::factory()->create(['status' => 'published']);
+
+    Url::factory()->create([
+        'language_id' => Language::query()->where('default', true)->value('id'),
+        'element_type' => Product::morphName(),
+        'element_id' => $product->id,
+        'slug' => 'gallery-product',
+        'default' => true,
+    ]);
+
+    $response = $this->get('/products/gallery-product');
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('product.images'));
+});
+
+it('商品に画像がある時、imagesにURLが含まれること', function (): void {
+    Storage::fake('public');
+
+    $product = Product::factory()->create(['status' => 'published']);
+
+    $file = UploadedFile::fake()->image('product.jpg');
+    $product->addMedia($file)->toMediaCollection('images');
+
+    Url::factory()->create([
+        'language_id' => Language::query()->where('default', true)->value('id'),
+        'element_type' => Product::morphName(),
+        'element_id' => $product->id,
+        'slug' => 'image-product',
+        'default' => true,
+    ]);
+
+    $response = $this->get('/products/image-product');
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('product.images', 1)
+            ->has('product.images.0.url')
+            ->has('product.images.0.thumbnail'));
+});
+
+it('バリアントにオプション値がある時、optionsにname・valueが含まれること', function (): void {
+    $product = Product::factory()->create(['status' => 'published']);
+
+    $option = ProductOption::factory()->create();
+    $optionValue = ProductOptionValue::factory()->create(['product_option_id' => $option->id]);
+
+    $variant = ProductVariant::factory()->create([
+        'product_id' => $product->id,
+        'purchasable' => 'in_stock',
+        'stock' => 5,
+    ]);
+    $variant->values()->attach($optionValue->id);
+
+    Url::factory()->create([
+        'language_id' => Language::query()->where('default', true)->value('id'),
+        'element_type' => Product::morphName(),
+        'element_id' => $product->id,
+        'slug' => 'option-product',
+        'default' => true,
+    ]);
+
+    $response = $this->get('/products/option-product');
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('product.variants.0.options', 1)
+            ->has('product.variants.0.options.0.name')
+            ->has('product.variants.0.options.0.value'));
+});
+
+it('商品詳細propsに関連商品が含まれること', function (): void {
+    $product = Product::factory()->create(['status' => 'published']);
+    $related = Product::factory()->create(['status' => 'published']);
+
+    ProductAssociation::factory()->create([
+        'product_parent_id' => $product->id,
+        'product_target_id' => $related->id,
+        'type' => 'cross-sell',
+    ]);
+
+    Url::factory()->create([
+        'language_id' => Language::query()->where('default', true)->value('id'),
+        'element_type' => Product::morphName(),
+        'element_id' => $product->id,
+        'slug' => 'related-product',
+        'default' => true,
+    ]);
+
+    $response = $this->get('/products/related-product');
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('product.relatedProducts')
+            ->has('product.relatedProducts.0.id')
+            ->has('product.relatedProducts.0.name')
+            ->has('product.relatedProducts.0.price')
+            ->has('product.relatedProducts.0.thumbnail')
+            ->has('product.relatedProducts.0.slug'));
 });

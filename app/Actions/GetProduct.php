@@ -13,7 +13,16 @@ final readonly class GetProduct
     {
         return Product::query()
             ->status('published')
-            ->with(['brand', 'variants.prices', 'media', 'defaultUrl'])
+            ->with([
+                'brand',
+                'variants.prices',
+                'variants.values.option',
+                'media',
+                'defaultUrl',
+                'associations.target.variants.prices',
+                'associations.target.media',
+                'associations.target.defaultUrl',
+            ])
             ->whereHas('urls', function (Builder $query) use ($slug): void {
                 $query->where('slug', $slug)->where('default', true);
             })
