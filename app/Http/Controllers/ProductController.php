@@ -13,6 +13,7 @@ use Lunar\Models\Brand;
 use Lunar\Models\Collection;
 use Lunar\Models\Product;
 use Lunar\Models\ProductAssociation;
+use Lunar\Models\ProductOption;
 use Lunar\Models\ProductOptionValue;
 use Lunar\Models\ProductVariant;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -69,6 +70,12 @@ final readonly class ProductController
     {
         $product = $this->getProduct->handle($slug);
 
+        /** @var \Illuminate\Database\Eloquent\Collection<int, ProductVariant> $variants */
+        $variants = $product->variants;
+
+        /** @var \Illuminate\Database\Eloquent\Collection<int, ProductAssociation> $associations */
+        $associations = $product->associations;
+
         return Inertia::render('products/show', [
             'product' => [
                 'id' => (int) $product->id,
@@ -80,28 +87,43 @@ final readonly class ProductController
                     'url' => $media->getUrl() ?: null,
                     'thumbnail' => $media->getUrl('small') ?: $media->getUrl() ?: null,
                 ])->values()->all(),
-                'variants' => $product->variants->map(fn (ProductVariant $variant): array => [
-                    'id' => (int) $variant->id,
-                    'sku' => $variant->sku,
-                    'price' => data_get($variant, 'prices.0.price.value'),
-                    'stock' => $variant->stock,
-                    'inStock' => match ($variant->purchasable) {
-                        'always', 'backorder' => true,
-                        'in_stock' => $variant->stock > 0,
-                        default => false,
-                    },
-                    'options' => $variant->values->map(fn (ProductOptionValue $value): array => [
-                        'name' => $value->option->translate('name'),
-                        'value' => $value->translate('name'),
-                    ])->values()->toArray(),
-                ])->values()->toArray(),
-                'relatedProducts' => $product->associations->map(fn (ProductAssociation $assoc): array => [
-                    'id' => (int) $assoc->target->id,
-                    'name' => $assoc->target->translateAttribute('name'),
-                    'price' => data_get($assoc->target, 'variants.0.prices.0.price.value'),
-                    'thumbnail' => $assoc->target->getFirstMediaUrl('images', 'small') ?: null,
-                    'slug' => data_get($assoc->target, 'defaultUrl.slug'),
-                ])->values()->toArray(),
+                'variants' => $variants->map(function (ProductVariant $variant): array {
+                    /** @var \Illuminate\Database\Eloquent\Collection<int, ProductOptionValue> $values */
+                    $values = $variant->values;
+
+                    return [
+                        'id' => (int) $variant->id,
+                        'sku' => $variant->sku,
+                        'price' => data_get($variant, 'prices.0.price.value'),
+                        'stock' => $variant->stock,
+                        'inStock' => match ($variant->purchasable) {
+                            'always', 'backorder' => true,
+                            'in_stock' => $variant->stock > 0,
+                            default => false,
+                        },
+                        'options' => $values->map(function (ProductOptionValue $value): array {
+                            /** @var ProductOption $option */
+                            $option = $value->option;
+
+                            return [
+                                'name' => $option->translate('name'),
+                                'value' => $value->translate('name'),
+                            ];
+                        })->values()->all(),
+                    ];
+                })->values()->all(),
+                'relatedProducts' => $associations->map(function (ProductAssociation $assoc): array {
+                    /** @var Product $target */
+                    $target = $assoc->target;
+
+                    return [
+                        'id' => (int) $target->id,
+                        'name' => $target->translateAttribute('name'),
+                        'price' => data_get($target, 'variants.0.prices.0.price.value'),
+                        'thumbnail' => $target->getFirstMediaUrl('images', 'small') ?: null,
+                        'slug' => data_get($target, 'defaultUrl.slug'),
+                    ];
+                })->values()->all(),
             ],
         ]);
     }
