@@ -8,6 +8,7 @@ use App\Actions\GetProducts;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Lunar\Models\Product;
 
 final readonly class ProductController
 {
@@ -24,7 +25,7 @@ final readonly class ProductController
         $products = $this->getProducts->handle(perPage: $perPage, page: $page);
 
         return Inertia::render('products/index', [
-            'products' => $products->through(fn ($product) => [
+            'products' => $products->through(fn (Product $product) => [
                 'id' => $product->id,
                 'name' => $product->translateAttribute('name'),
                 'brand' => $product->brand?->name,
