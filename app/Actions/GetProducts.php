@@ -31,8 +31,8 @@ final readonly class GetProducts
                     : "json_extract(attribute_data, '$.name.value')";
                 $query->whereRaw("{$expr} LIKE ?", ["%{$search}%"]);
             })
-            ->when($brand !== null, fn ($query) => $query->where('brand_id', $brand))
-            ->when($collection !== null, fn ($query) => $query->whereHas('collections', fn ($q) => $q->where('lunar_collections.id', $collection)))
+            ->when($brand !== null, fn (Builder $query) => $query->where('brand_id', $brand))
+            ->when($collection !== null, fn (Builder $query) => $query->whereHas('collections', fn (Builder $q) => $q->where('lunar_collections.id', $collection)))
             ->when($sort === 'name_asc', function (Builder $query): void {
                 $expr = $query->getConnection()->getDriverName() === 'mysql'
                     ? "JSON_UNQUOTE(JSON_EXTRACT(attribute_data, '$.name.value'))"
@@ -49,7 +49,7 @@ final readonly class GetProducts
                     [$morphType]
                 );
             })
-            ->when(! in_array($sort, ['price_asc', 'price_desc', 'name_asc'], true), fn ($query) => $query->latest())
+            ->when(! in_array($sort, ['price_asc', 'price_desc', 'name_asc'], true), fn (Builder $query) => $query->latest())
             ->paginate(perPage: $perPage, page: $page);
     }
 }
