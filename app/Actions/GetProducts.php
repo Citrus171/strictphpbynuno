@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Lunar\Models\Product;
@@ -54,7 +55,7 @@ final readonly class GetProducts
      */
     private function nameAttributeExpression(Builder $query): string
     {
-        /** @var \Illuminate\Database\Connection $connection */
+        /** @var Connection $connection */
         $connection = $query->getConnection();
 
         return $connection->getDriverName() === 'mysql'
