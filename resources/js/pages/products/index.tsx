@@ -1,5 +1,4 @@
 import StorefrontLayout from '@/layouts/storefront-layout';
-import { index as productsIndex } from '@/actions/App/Http/Controllers/ProductController';
 import { Head, Link } from '@inertiajs/react';
 
 interface Product {
@@ -93,7 +92,7 @@ export default function ProductsIndex({ products }: Props) {
                             </div>
                             <div className="flex flex-1 flex-col gap-2 p-4">
                                 {product.brand && (
-                                    <p className="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-neutral-500">
+                                    <p className="text-xs font-medium tracking-wide text-gray-400 uppercase dark:text-neutral-500">
                                         {product.brand}
                                     </p>
                                 )}

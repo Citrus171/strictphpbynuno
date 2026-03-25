@@ -1,5 +1,5 @@
-import { Link } from '@inertiajs/react';
 import { index as productsIndex } from '@/actions/App/Http/Controllers/ProductController';
+import { Link } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
 
 export default function StorefrontLayout({ children }: PropsWithChildren) {
