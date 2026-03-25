@@ -1,4 +1,7 @@
-import { index as productsIndex, show } from '@/actions/App/Http/Controllers/ProductController';
+import {
+    index as productsIndex,
+    show,
+} from '@/actions/App/Http/Controllers/ProductController';
 import StorefrontLayout from '@/layouts/storefront-layout';
 import { formatPrice } from '@/lib/format-price';
 import { Head, Link } from '@inertiajs/react';
@@ -99,9 +102,7 @@ export default function ProductsShow({ product }: Props) {
                             {product.images.map((image, index) => (
                                 <button
                                     key={index}
-                                    onClick={() =>
-                                        setActiveImageUrl(image.url)
-                                    }
+                                    onClick={() => setActiveImageUrl(image.url)}
                                     className={[
                                         'h-16 w-16 overflow-hidden rounded-lg border-2 transition-all',
                                         activeImageUrl === image.url
@@ -172,7 +173,8 @@ export default function ProductsShow({ product }: Props) {
                                             ? variant.options
                                                   .map((o) => o.value)
                                                   .join(' / ')
-                                            : (variant.sku ?? `バリアント${variant.id}`);
+                                            : (variant.sku ??
+                                              `バリアント${variant.id}`);
                                     const isSelected =
                                         selectedVariantId === variant.id;
                                     return (
@@ -236,9 +238,7 @@ export default function ProductsShow({ product }: Props) {
                             <Link
                                 key={related.id}
                                 href={
-                                    related.slug
-                                        ? show.url(related.slug)
-                                        : '#'
+                                    related.slug ? show.url(related.slug) : '#'
                                 }
                                 className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-neutral-700 dark:bg-neutral-800"
                             >
