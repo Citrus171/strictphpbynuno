@@ -12,6 +12,9 @@ use Inertia\Response;
 use Lunar\Models\Brand;
 use Lunar\Models\Collection;
 use Lunar\Models\Product;
+use Lunar\Models\ProductAssociation;
+use Lunar\Models\ProductOptionValue;
+use Lunar\Models\ProductVariant;
 
 final readonly class ProductController
 {
@@ -72,6 +75,32 @@ final readonly class ProductController
                 'price' => data_get($product, 'variants.0.prices.0.price.value'),
                 'description' => $product->translateAttribute('description'),
                 'mainImage' => $product->getFirstMediaUrl('images') ?: null,
+                'images' => $product->getMedia('images')->map(fn (\Spatie\MediaLibrary\MediaCollections\Models\Media $media): array => [
+                    'url' => $media->getUrl() ?: null,
+                    'thumbnail' => $media->getUrl('small') ?: $media->getUrl() ?: null,
+                ])->values()->toArray(),
+                'variants' => $product->variants->map(fn (ProductVariant $variant): array => [
+                    'id' => (int) $variant->id,
+                    'sku' => $variant->sku,
+                    'price' => data_get($variant, 'prices.0.price.value'),
+                    'stock' => $variant->stock,
+                    'inStock' => match ($variant->purchasable) {
+                        'always', 'backorder' => true,
+                        'in_stock' => $variant->stock > 0,
+                        default => false,
+                    },
+                    'options' => $variant->values->map(fn (ProductOptionValue $value): array => [
+                        'name' => $value->option->translate('name'),
+                        'value' => $value->translate('name'),
+                    ])->values()->toArray(),
+                ])->values()->toArray(),
+                'relatedProducts' => $product->associations->map(fn (ProductAssociation $assoc): array => [
+                    'id' => (int) $assoc->target->id,
+                    'name' => $assoc->target->translateAttribute('name'),
+                    'price' => data_get($assoc->target, 'variants.0.prices.0.price.value'),
+                    'thumbnail' => $assoc->target->getFirstMediaUrl('images', 'small') ?: null,
+                    'slug' => data_get($assoc->target, 'defaultUrl.slug'),
+                ])->values()->toArray(),
             ],
         ]);
     }

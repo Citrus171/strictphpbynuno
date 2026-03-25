@@ -537,3 +537,10 @@ export default () => (
 | decoration-slice | box-decoration-slice |
 | decoration-clone | box-decoration-clone |
 </laravel-boost-guidelines>
+
+## テスト一覧ファイルの更新
+
+テストコードを追加・変更・削除した後は、必ず以下の2つのファイルを最新の状態に更新すること。
+
+- `tests/TESTS.md` — チェックボックス付きリスト形式
+- `tests/TESTS_TREE.md` — ツリー形式
