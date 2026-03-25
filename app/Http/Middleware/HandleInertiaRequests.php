@@ -6,6 +6,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Lunar\Facades\CartSession;
 use Override;
 
 final class HandleInertiaRequests extends Middleware
@@ -33,6 +34,8 @@ final class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $cart = CartSession::current(calculate: false);
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -40,6 +43,7 @@ final class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'cartItemCount' => $cart ? (int) $cart->lines()->sum('quantity') : 0,
         ];
     }
 }

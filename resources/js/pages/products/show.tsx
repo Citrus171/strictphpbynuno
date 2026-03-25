@@ -1,10 +1,11 @@
+import { store as cartStore } from '@/actions/App/Http/Controllers/CartController';
 import {
     index as productsIndex,
     show,
 } from '@/actions/App/Http/Controllers/ProductController';
 import StorefrontLayout from '@/layouts/storefront-layout';
 import { formatPrice } from '@/lib/format-price';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 
 interface VariantOption {
@@ -204,6 +205,16 @@ export default function ProductsShow({ product }: Props) {
                     {/* カートに追加ボタン */}
                     <button
                         disabled={!inStock || selectedVariant === null}
+                        onClick={() => {
+                            if (selectedVariant === null) {
+                                return;
+                            }
+                            router.post(
+                                cartStore.url(),
+                                { variantId: selectedVariant.id, quantity: 1 },
+                                { preserveScroll: true },
+                            );
+                        }}
                         className="w-full rounded-xl bg-gray-900 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:bg-gray-300 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 dark:disabled:bg-neutral-700 dark:disabled:text-neutral-500"
                     >
                         {inStock ? 'カートに追加' : '在庫切れ'}
