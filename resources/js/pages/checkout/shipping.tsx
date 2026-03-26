@@ -94,7 +94,9 @@ export default function CheckoutShipping({ shippingOptions }: Props) {
                                     disabled={processing}
                                     className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
                                 >
-                                    {processing ? '処理中...' : '注文を確定する'}
+                                    {processing
+                                        ? '処理中...'
+                                        : '注文を確定する'}
                                 </button>
                             </div>
                         </div>

@@ -169,7 +169,9 @@ export default function CheckoutAddress() {
                                     disabled={processing}
                                     className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
                                 >
-                                    {processing ? '処理中...' : '配送方法を選ぶ'}
+                                    {processing
+                                        ? '処理中...'
+                                        : '配送方法を選ぶ'}
                                 </button>
                             </div>
                         </div>
