@@ -17,6 +17,8 @@
 - [ ] カートページに「レジに進む」ボタンが表示されること
 - [ ] チェックアウト住所ページが正しく表示されること
 - [ ] 住所を入力して配送方法ページに進めること
+- [ ] 配送方法を選択して注文確認ページに進めること
+- [ ] 注文確認から注文完了まで全フローが動作すること
 
 ### ProductsPageTest
 - [ ] 商品一覧ページが正しく表示されること
@@ -66,6 +68,12 @@
 - [ ] カートが空の時、POST /checkout/shippingはカートページにリダイレクトされること
 - [ ] カートに商品がある時、GET /checkout/addressがアドレスページを表示すること
 - [ ] カートに商品がある時、GET /checkout/shippingが配送オプションを含むページを表示すること
+- [ ] カートに商品と配送情報がある時、GET /checkout/confirmが確認ページを表示すること
+- [ ] 有効なカートの時、POST /checkout/confirmで注文が作成されCheckout/Completeにリダイレクトされること
+- [ ] 有効なカートの時、POST /checkout/confirmで注文確定後にカートがクリアされること
+- [ ] 有効な注文の時、GET /checkout/completeが注文完了ページを表示すること
+- [ ] カートが空の時、GET /checkout/confirmはカートページにリダイレクトされること
+- [ ] カートが空の時、POST /checkout/confirmはカートページにリダイレクトされること
 
 ### Controllers / CartControllerTest
 - [ ] `/cart` にアクセスした時、カートページが表示されること
