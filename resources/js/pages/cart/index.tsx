@@ -171,25 +171,27 @@ export default function CartIndex({
                             ) : (
                                 <Form {...cartApplyCoupon.form()}>
                                     {({ errors, processing }) => (
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="text"
-                                                name="couponCode"
-                                                placeholder="クーポンコードを入力"
-                                                className="flex-1 rounded border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
-                                                aria-label="クーポンコード"
-                                            />
-                                            <button
-                                                type="submit"
-                                                disabled={processing}
-                                                className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white transition-colors hover:bg-gray-700 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
-                                            >
-                                                {processing
-                                                    ? '適用中...'
-                                                    : '適用'}
-                                            </button>
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="text"
+                                                    name="couponCode"
+                                                    placeholder="クーポンコードを入力"
+                                                    className="flex-1 rounded border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+                                                    aria-label="クーポンコード"
+                                                />
+                                                <button
+                                                    type="submit"
+                                                    disabled={processing}
+                                                    className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white transition-colors hover:bg-gray-700 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
+                                                >
+                                                    {processing
+                                                        ? '適用中...'
+                                                        : '適用'}
+                                                </button>
+                                            </div>
                                             {errors.couponCode && (
-                                                <p className="mt-1 text-xs text-red-500">
+                                                <p className="text-xs text-red-500">
                                                     {errors.couponCode}
                                                 </p>
                                             )}

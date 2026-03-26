@@ -1,7 +1,5 @@
-import {
-    shipping as checkoutShipping,
-    storeAddress,
-} from '@/actions/App/Http/Controllers/CheckoutController';
+import { index as cartIndex } from '@/actions/App/Http/Controllers/CartController';
+import { storeAddress } from '@/actions/App/Http/Controllers/CheckoutController';
 import StorefrontLayout from '@/layouts/storefront-layout';
 import { Form, Head, Link } from '@inertiajs/react';
 
@@ -159,7 +157,7 @@ export default function CheckoutAddress() {
 
                             <div className="flex items-center justify-between gap-4 pt-2">
                                 <Link
-                                    href={checkoutShipping.url()}
+                                    href={cartIndex.url()}
                                     className="text-sm text-gray-500 hover:text-gray-700 dark:text-neutral-400 dark:hover:text-neutral-200"
                                 >
                                     ← カートに戻る

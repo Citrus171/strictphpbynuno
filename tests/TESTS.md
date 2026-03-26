@@ -5,6 +5,12 @@
 ### WelcomeTest
 - [ ] has welcome page
 
+### SmokeTest
+- [ ] 全ストアフロントページでJavaScriptエラーが発生しないこと
+
+### PurchaseFlowTest
+- [ ] 商品一覧から注文完了まで全購買フローが動作すること
+
 ### CartPageTest
 - [ ] カートページが正しく表示されること
 - [ ] カートが空の時に空メッセージが表示されること
