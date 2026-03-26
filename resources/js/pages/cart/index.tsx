@@ -4,9 +4,10 @@ import {
     removeCoupon as cartRemoveCoupon,
     update as cartUpdate,
 } from '@/actions/App/Http/Controllers/CartController';
+import { address as checkoutAddress } from '@/actions/App/Http/Controllers/CheckoutController';
 import StorefrontLayout from '@/layouts/storefront-layout';
 import { formatPrice } from '@/lib/format-price';
-import { Form, Head, router } from '@inertiajs/react';
+import { Form, Head, Link, router } from '@inertiajs/react';
 
 interface CartItem {
     cartLineId: number;
@@ -289,6 +290,16 @@ export default function CartIndex({
                                 </div>
                             );
                         })()}
+                    </div>
+                )}
+                {items.length > 0 && (
+                    <div className="mt-6">
+                        <Link
+                            href={checkoutAddress.url()}
+                            className="block w-full rounded-lg bg-blue-600 px-6 py-3 text-center text-base font-semibold text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+                        >
+                            レジに進む
+                        </Link>
                     </div>
                 )}
             </div>
