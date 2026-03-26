@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
+use Lunar\DataTypes\Price;
 use Lunar\DataTypes\ShippingOption;
 use Lunar\Facades\CartSession;
 use Lunar\Facades\ShippingManifest;
@@ -167,18 +168,24 @@ final readonly class CheckoutController
 
         $lines = [];
         foreach ($orderLines as $line) {
-            if ($line->sub_total->value > 0) {
+            /** @var Price $subTotal */
+            $subTotal = $line->sub_total;
+
+            if ($subTotal->value > 0) {
                 $lines[] = [
                     'name' => $line->description,
                     'quantity' => $line->quantity,
-                    'subTotal' => $line->sub_total->value,
+                    'subTotal' => $subTotal->value,
                 ];
             }
         }
 
+        /** @var Price $orderTotal */
+        $orderTotal = $order->total;
+
         return Inertia::render('checkout/complete', [
             'orderReference' => $order->reference,
-            'total' => $order->total->value,
+            'total' => $orderTotal->value,
             'lines' => $lines,
         ]);
     }
