@@ -17,3 +17,8 @@ parameters:
     level: max
 
     tmpDir: /tmp/phpstan
+
+    stubFiles:
+        - stubs/Lunar/Models/Cart.php
+        - stubs/Lunar/Models/Order.php
+        - stubs/Lunar/Models/OrderLine.php

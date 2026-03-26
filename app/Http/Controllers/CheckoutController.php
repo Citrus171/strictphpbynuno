@@ -18,6 +18,8 @@ use Lunar\Models\CartLine;
 use Lunar\Models\Country;
 use Lunar\Models\Order;
 use Lunar\Models\OrderLine;
+use Lunar\Models\Product;
+use Lunar\Models\ProductVariant;
 
 final readonly class CheckoutController
 {
@@ -114,13 +116,27 @@ final readonly class CheckoutController
 
         $cart = $cart->calculate();
 
-        $lines = $cart->lines->map(fn (CartLine $line): array => [
-            'id' => $line->id,
-            'name' => $line->purchasable->product->translateAttribute('name'),
-            'quantity' => $line->quantity,
-            'unitPrice' => $line->unitPrice?->value,
-            'subTotal' => $line->subTotal?->value,
-        ])->values()->all();
+        $cart->lines->loadMissing('purchasable.product');
+
+        /** @var Collection<int, CartLine> $cartLines */
+        $cartLines = $cart->lines;
+
+        $lines = [];
+        foreach ($cartLines as $line) {
+            /** @var ProductVariant $variant */
+            $variant = $line->purchasable;
+
+            /** @var Product $product */
+            $product = $variant->product;
+
+            $lines[] = [
+                'id' => $line->id,
+                'name' => $product->translateAttribute('name'),
+                'quantity' => $line->quantity,
+                'unitPrice' => $line->unitPrice?->value,
+                'subTotal' => $line->subTotal?->value,
+            ];
+        }
 
         return Inertia::render('checkout/confirm', [
             'lines' => $lines,
@@ -146,15 +162,23 @@ final readonly class CheckoutController
 
     public function complete(Order $order): Response
     {
-        $lines = $order->lines->map(fn (OrderLine $line): array => [
-            'name' => $line->description,
-            'quantity' => $line->quantity,
-            'subTotal' => $line->sub_total?->value,
-        ])->filter(fn (array $line): bool => $line['subTotal'] > 0)->values()->all();
+        /** @var Collection<int, OrderLine> $orderLines */
+        $orderLines = $order->lines;
+
+        $lines = [];
+        foreach ($orderLines as $line) {
+            if ($line->sub_total->value > 0) {
+                $lines[] = [
+                    'name' => $line->description,
+                    'quantity' => $line->quantity,
+                    'subTotal' => $line->sub_total->value,
+                ];
+            }
+        }
 
         return Inertia::render('checkout/complete', [
             'orderReference' => $order->reference,
-            'total' => $order->total?->value,
+            'total' => $order->total->value,
             'lines' => $lines,
         ]);
     }
