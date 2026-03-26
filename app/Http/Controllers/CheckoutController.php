@@ -14,8 +14,10 @@ use Inertia\Response;
 use Lunar\DataTypes\ShippingOption;
 use Lunar\Facades\CartSession;
 use Lunar\Facades\ShippingManifest;
+use Lunar\Models\CartLine;
 use Lunar\Models\Country;
 use Lunar\Models\Order;
+use Lunar\Models\OrderLine;
 
 final readonly class CheckoutController
 {
@@ -112,7 +114,7 @@ final readonly class CheckoutController
 
         $cart = $cart->calculate();
 
-        $lines = $cart->lines->map(fn ($line): array => [
+        $lines = $cart->lines->map(fn (CartLine $line): array => [
             'id' => $line->id,
             'name' => $line->purchasable->product->translateAttribute('name'),
             'quantity' => $line->quantity,
@@ -144,11 +146,11 @@ final readonly class CheckoutController
 
     public function complete(Order $order): Response
     {
-        $lines = $order->lines->map(fn ($line): array => [
+        $lines = $order->lines->map(fn (OrderLine $line): array => [
             'name' => $line->description,
             'quantity' => $line->quantity,
             'subTotal' => $line->sub_total?->value,
-        ])->filter(fn ($line): bool => $line['subTotal'] > 0)->values()->all();
+        ])->filter(fn (array $line): bool => $line['subTotal'] > 0)->values()->all();
 
         return Inertia::render('checkout/complete', [
             'orderReference' => $order->reference,
