@@ -3,9 +3,12 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Lunar\Facades\CartSession;
 use Lunar\Models\Channel;
+use Lunar\Models\Country;
 use Lunar\Models\Currency;
 use Lunar\Models\Language;
+use Lunar\Models\Order;
 use Lunar\Models\Price;
 use Lunar\Models\ProductVariant;
 use Lunar\Models\TaxClass;
@@ -19,6 +22,7 @@ beforeEach(function (): void {
     Language::factory()->create(['default' => true]);
     Currency::factory()->create(['default' => true]);
     Channel::factory()->create(['default' => true]);
+    Country::factory()->create(['iso2' => 'JP', 'name' => 'Japan']);
 
     $taxClass = TaxClass::factory()->create(['name' => 'Default']);
     $taxZone = TaxZone::factory()->create(['default' => true]);
@@ -209,4 +213,99 @@ it('カートに商品がある時、GET /checkout/shippingが配送オプショ
         ->assertInertia(fn ($page) => $page
             ->component('checkout/shipping')
             ->has('shippingOptions'));
+});
+
+// ─── Slice 7: 注文確認・注文完了 ──────────────────────────────────────────────
+
+/**
+ * 住所と配送方法を設定するヘルパー
+ */
+function setupCheckoutAddress(): void
+{
+    test()->post(route('checkout.address.store'), [
+        'first_name' => '山田太郎',
+        'postcode' => '100-0001',
+        'state' => '東京都',
+        'city' => '千代田区',
+        'line_one' => '千代田1-1-1',
+        'contact_phone' => '03-1234-5678',
+    ]);
+}
+
+function setupCheckoutShipping(): void
+{
+    test()->post(route('checkout.shipping.store'), [
+        'identifier' => 'flat_rate_standard',
+    ]);
+}
+
+it('カートに商品と配送情報がある時、GET /checkout/confirmが確認ページを表示すること', function (): void {
+    addItemToCart();
+
+    $this->post(route('checkout.address.store'), [
+        'first_name' => '山田太郎',
+        'postcode' => '100-0001',
+        'state' => '東京都',
+        'city' => '千代田区',
+        'line_one' => '千代田1-1-1',
+        'contact_phone' => '03-1234-5678',
+    ]);
+
+    $response = $this->get(route('checkout.confirm'));
+
+    $response->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('checkout/confirm')
+            ->has('lines')
+            ->has('subTotal')
+            ->has('total'));
+});
+
+it('有効なカートの時、POST /checkout/confirmで注文が作成されCheckout/Completeにリダイレクトされること', function (): void {
+    addItemToCart();
+    setupCheckoutAddress();
+    setupCheckoutShipping();
+
+    $response = $this->post(route('checkout.confirm.store'));
+
+    $response->assertRedirect();
+    $this->assertDatabaseCount('lunar_orders', 1);
+});
+
+it('有効なカートの時、POST /checkout/confirmで注文確定後にカートがクリアされること', function (): void {
+    addItemToCart();
+    setupCheckoutAddress();
+    setupCheckoutShipping();
+
+    $this->post(route('checkout.confirm.store'));
+
+    $this->assertNull(CartSession::current());
+});
+
+it('有効な注文の時、GET /checkout/completeが注文完了ページを表示すること', function (): void {
+    addItemToCart();
+    setupCheckoutAddress();
+    setupCheckoutShipping();
+
+    $response = $this->post(route('checkout.confirm.store'));
+    $orderId = Order::query()->first()->id;
+
+    $this->get(route('checkout.complete', ['order' => $orderId]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('checkout/complete')
+            ->has('orderReference')
+            ->has('total'));
+});
+
+it('カートが空の時、GET /checkout/confirmはカートページにリダイレクトされること', function (): void {
+    $response = $this->get(route('checkout.confirm'));
+
+    $response->assertRedirect(route('cart.index'));
+});
+
+it('カートが空の時、POST /checkout/confirmはカートページにリダイレクトされること', function (): void {
+    $response = $this->post(route('checkout.confirm.store'));
+
+    $response->assertRedirect(route('cart.index'));
 });

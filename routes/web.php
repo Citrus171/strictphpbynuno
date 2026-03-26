@@ -30,6 +30,9 @@ Route::get('checkout/address', [CheckoutController::class, 'address'])->name('ch
 Route::post('checkout/address', [CheckoutController::class, 'storeAddress'])->name('checkout.address.store');
 Route::get('checkout/shipping', [CheckoutController::class, 'shipping'])->name('checkout.shipping');
 Route::post('checkout/shipping', [CheckoutController::class, 'storeShipping'])->name('checkout.shipping.store');
+Route::get('checkout/confirm', [CheckoutController::class, 'confirm'])->name('checkout.confirm');
+Route::post('checkout/confirm', [CheckoutController::class, 'storeConfirm'])->name('checkout.confirm.store');
+Route::get('checkout/complete/{order}', [CheckoutController::class, 'complete'])->name('checkout.complete');
 
 Route::get('products', [ProductController::class, 'index'])->name('products.index');
 Route::get('products/{slug}', [ProductController::class, 'show'])->name('products.show');
