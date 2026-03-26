@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\UserController;
@@ -24,6 +25,11 @@ Route::patch('cart/items/{cartLineId}', [CartController::class, 'update'])->name
 Route::delete('cart/items/{cartLineId}', [CartController::class, 'destroy'])->name('cart.items.destroy');
 Route::post('cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon.store');
 Route::delete('cart/coupon', [CartController::class, 'removeCoupon'])->name('cart.coupon.destroy');
+
+Route::get('checkout/address', [CheckoutController::class, 'address'])->name('checkout.address');
+Route::post('checkout/address', [CheckoutController::class, 'storeAddress'])->name('checkout.address.store');
+Route::get('checkout/shipping', [CheckoutController::class, 'shipping'])->name('checkout.shipping');
+Route::post('checkout/shipping', [CheckoutController::class, 'storeShipping'])->name('checkout.shipping.store');
 
 Route::get('products', [ProductController::class, 'index'])->name('products.index');
 Route::get('products/{slug}', [ProductController::class, 'show'])->name('products.show');
