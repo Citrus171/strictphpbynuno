@@ -3,10 +3,12 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Lunar\Facades\CartSession;
 use Lunar\Models\Channel;
 use Lunar\Models\Country;
 use Lunar\Models\Currency;
 use Lunar\Models\Language;
+use Lunar\Models\Order;
 use Lunar\Models\Price;
 use Lunar\Models\ProductVariant;
 use Lunar\Models\TaxClass;
@@ -277,7 +279,7 @@ it('有効なカートの時、POST /checkout/confirmで注文確定後にカー
 
     $this->post(route('checkout.confirm.store'));
 
-    $this->assertNull(Lunar\Facades\CartSession::current());
+    $this->assertNull(CartSession::current());
 });
 
 it('有効な注文の時、GET /checkout/completeが注文完了ページを表示すること', function (): void {
@@ -286,7 +288,7 @@ it('有効な注文の時、GET /checkout/completeが注文完了ページを表
     setupCheckoutShipping();
 
     $response = $this->post(route('checkout.confirm.store'));
-    $orderId = Lunar\Models\Order::query()->first()->id;
+    $orderId = Order::query()->first()->id;
 
     $this->get(route('checkout.complete', ['order' => $orderId]))
         ->assertOk()

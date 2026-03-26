@@ -40,7 +40,7 @@ final readonly class CheckoutController
             return to_route('cart.index');
         }
 
-        $country = Country::where('iso2', 'JP')->first();
+        $country = Country::query()->where('iso2', 'JP')->first();
 
         $addressData = [
             'first_name' => $request->string('first_name')->value(),
