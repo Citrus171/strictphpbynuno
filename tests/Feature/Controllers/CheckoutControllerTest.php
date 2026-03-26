@@ -69,6 +69,29 @@ it('カートが空の時、GET /checkout/shippingはカートページにリダ
     $response->assertRedirect(route('cart.index'));
 });
 
+// ─── Slice 6: カートなし時の POST リダイレクト ────────────────────────────────
+
+it('カートが空の時、POST /checkout/addressはカートページにリダイレクトされること', function (): void {
+    $response = $this->post(route('checkout.address.store'), [
+        'first_name' => '山田太郎',
+        'postcode' => '100-0001',
+        'state' => '東京都',
+        'city' => '千代田区',
+        'line_one' => '千代田1-1-1',
+        'contact_phone' => '03-1234-5678',
+    ]);
+
+    $response->assertRedirect(route('cart.index'));
+});
+
+it('カートが空の時、POST /checkout/shippingはカートページにリダイレクトされること', function (): void {
+    $response = $this->post(route('checkout.shipping.store'), [
+        'identifier' => 'flat_rate_standard',
+    ]);
+
+    $response->assertRedirect(route('cart.index'));
+});
+
 // ─── Slice 3: 住所入力フォームの送信 ──────────────────────────────────────────
 
 it('有効な住所データをPOSTした時、Checkout/Shippingにリダイレクトされること', function (): void {

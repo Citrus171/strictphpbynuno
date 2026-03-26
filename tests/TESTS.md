@@ -62,6 +62,8 @@
 - [ ] 有効な配送方法identifierをPOSTした時、カートに保存されリダイレクトされること
 - [ ] identifierが欠けている時、POST /checkout/shippingがバリデーションエラーを返すこと
 - [ ] 必須フィールドが欠けている時、POST /checkout/addressがバリデーションエラーを返すこと（6ケース）
+- [ ] カートが空の時、POST /checkout/addressはカートページにリダイレクトされること
+- [ ] カートが空の時、POST /checkout/shippingはカートページにリダイレクトされること
 - [ ] カートに商品がある時、GET /checkout/addressがアドレスページを表示すること
 - [ ] カートに商品がある時、GET /checkout/shippingが配送オプションを含むページを表示すること
 
