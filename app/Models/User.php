@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Lunar\Base\LunarUser as LunarUserContract;
 use Lunar\Base\Traits\LunarUser;
 use Override;
 
@@ -28,7 +29,7 @@ use Override;
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  */
-final class User extends Authenticatable implements MustVerifyEmail
+final class User extends Authenticatable implements LunarUserContract, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory;

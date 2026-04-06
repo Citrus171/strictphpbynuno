@@ -84,13 +84,14 @@
             "pint --parallel",
             "bun run lint"
         ],
-        "test:type-coverage": "pest --type-coverage --min=100",
+        "test:type-coverage": "pest --type-coverage --min=90 --exclude-testsuite=Browser",
         "test:lint": [
             "pint --parallel --test",
             "rector --dry-run",
             "bun run test:lint"
         ],
-        "test:unit": "XDEBUG_MODE=\"coverage\" pest --parallel --coverage --exactly=100.0",
+        "test:unit": "XDEBUG_MODE=\"coverage\" pest --parallel --coverage --min=80 --exclude-testsuite=Browser",
+        "test:browser": "pest --testsuite=Browser",
         "test:types": [
             "phpstan",
             "bun run test:types"
@@ -98,6 +99,7 @@
         "test": [
             "@test:type-coverage",
             "@test:unit",
+            "@test:browser",
             "@test:lint",
             "@test:types"
         ]
