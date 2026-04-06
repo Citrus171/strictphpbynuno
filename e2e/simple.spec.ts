@@ -1,7 +1,10 @@
 import { expect, test } from 'playwright/test';
 
 test('トップページが表示されること', async ({ page }) => {
-    await page.goto('/');
+    const response = await page.goto('/');
 
-    await expect(page).toHaveURL('/');
+    expect(response).toBeTruthy();
+    expect(response?.ok()).toBe(true);
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.locator('body')).toContainText('Laravel');
 });
