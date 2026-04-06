@@ -32,3 +32,5 @@ Homestead.yaml
 /storage/media-library/
 /memo.txt
 /tests/Browser/Screenshots/
+/memo
+/test-results/
