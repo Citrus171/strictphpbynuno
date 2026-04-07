@@ -5,28 +5,21 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\UdemyTask;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 final readonly class UdemyTaskController
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
         $tasks = UdemyTask::with('project')->get();
 
         return response()->json($tasks, 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        //
         $validator = Validator::make($request->all(), [
             'project_id' => ['required', 'exists:udemy_projects,id'],
             'title' => ['required', 'string', 'max:255'],
@@ -39,17 +32,15 @@ final readonly class UdemyTaskController
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $task = UdemyTask::query()->create($validator->validated());
+        /** @var array<string, mixed> $validated */
+        $validated = $validator->validated();
+        $task = UdemyTask::query()->create($validated);
 
         return response()->json($task, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(string $id): JsonResponse
     {
-        //
         $task = UdemyTask::with('project')->find($id);
         if (! $task) {
             return response()->json(['message' => 'Task not found'], 404);
@@ -58,12 +49,8 @@ final readonly class UdemyTaskController
         return response()->json($task, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): JsonResponse
     {
-        //
         $task = UdemyTask::with('project')->find($id);
         if (! $task) {
             return response()->json(['message' => 'Task not found'], 404);
@@ -81,18 +68,16 @@ final readonly class UdemyTaskController
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $task->update($validator->validated());
+        /** @var array<string, mixed> $validated */
+        $validated = $validator->validated();
+        $task->update($validated);
 
         return response()->json(['message' => 'Task updated successfully', 'task' => $task], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(string $id): JsonResponse
     {
-        //
-        $task = UdemyTask::with('project')->find($id);
+        $task = UdemyTask::query()->find($id);
         if (! $task) {
             return response()->json(['message' => 'Task not found'], 404);
         }

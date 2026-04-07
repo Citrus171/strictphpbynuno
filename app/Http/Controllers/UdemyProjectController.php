@@ -5,24 +5,18 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\UdemyProject;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 final readonly class UdemyProjectController
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
-        return response()->json(UdemyProject::all(), 200);
+        return response()->json(UdemyProject::query()->get(), 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'title' => ['required', 'string', 'max:255'],
@@ -34,17 +28,15 @@ final readonly class UdemyProjectController
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $project = UdemyProject::query()->create($validator->validated());
+        /** @var array<string, mixed> $validated */
+        $validated = $validator->validated();
+        $project = UdemyProject::query()->create($validated);
 
         return response()->json($project, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(string $id): JsonResponse
     {
-        //
         $project = UdemyProject::query()->find($id);
         if (! $project) {
             return response()->json(['message' => 'Project not found'], 404);
@@ -53,10 +45,7 @@ final readonly class UdemyProjectController
         return response()->json($project, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): JsonResponse
     {
         $project = UdemyProject::query()->find($id);
         if (! $project) {
@@ -73,17 +62,15 @@ final readonly class UdemyProjectController
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $project->update($validator->validated());
+        /** @var array<string, mixed> $validated */
+        $validated = $validator->validated();
+        $project->update($validated);
 
         return response()->json(['message' => 'Project updated successfully', 'project' => $project], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(string $id): JsonResponse
     {
-        //
         $project = UdemyProject::query()->find($id);
         if (! $project) {
             return response()->json(['message' => 'Project not found'], 404);

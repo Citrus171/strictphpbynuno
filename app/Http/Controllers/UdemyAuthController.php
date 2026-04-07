@@ -9,7 +9,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Laravel\Sanctum\PersonalAccessToken;
 
 final readonly class UdemyAuthController
 {
@@ -25,6 +24,7 @@ final readonly class UdemyAuthController
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        /** @var array{name: string, email: string, password: string} $validated */
         $validated = $validator->validated();
 
         $user = User::query()->create([
@@ -56,7 +56,7 @@ final readonly class UdemyAuthController
         /** @var User|null $user */
         $user = User::query()->where('email', $request->string('email'))->first();
 
-        if (! $user || ! Hash::check($request->string('password'), $user->password)) {
+        if (! $user || ! Hash::check((string) $request->string('password'), $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
@@ -71,11 +71,9 @@ final readonly class UdemyAuthController
 
     public function logout(Request $request): JsonResponse
     {
-        $token = $request->user()->currentAccessToken();
-
-        if ($token instanceof PersonalAccessToken) {
-            $token->delete();
-        }
+        /** @var User $user */
+        $user = $request->user();
+        $user->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Logged out successfully']);
     }

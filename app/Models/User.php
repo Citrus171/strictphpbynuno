@@ -32,10 +32,11 @@ use Override;
  */
 final class User extends Authenticatable implements LunarUserContract, MustVerifyEmail
 {
-    /** @use HasFactory<UserFactory> */
     use HasApiTokens;
 
+    /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use HasUuids;
     use LunarUser;
     use Notifiable;
