@@ -6,6 +6,8 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\UdemyProjectController;
+use App\Http\Controllers\UdemyTaskController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserEmailResetNotificationController;
 use App\Http\Controllers\UserEmailVerificationController;
@@ -36,6 +38,27 @@ Route::get('checkout/complete/{order}', [CheckoutController::class, 'complete'])
 
 Route::get('products', [ProductController::class, 'index'])->name('products.index');
 Route::get('products/{slug}', [ProductController::class, 'show'])->name('products.show');
+
+// Udemy Projects...
+Route::get('udemy-projects', [UdemyProjectController::class, 'index'])->name('udemy-projects.index');
+Route::get('udemy-projects/create', [UdemyProjectController::class, 'create'])->name('udemy-projects.create');
+Route::post('udemy-projects', [UdemyProjectController::class, 'store'])->name('udemy-projects.store');
+Route::get('udemy-projects/{udemyProject}', [UdemyProjectController::class, 'show'])->name('udemy-projects.show');
+Route::get('udemy-projects/{udemyProject}/edit', [UdemyProjectController::class, 'edit'])->name('udemy-projects.edit');
+Route::patch('udemy-projects/{udemyProject}', [UdemyProjectController::class, 'update'])->name('udemy-projects.update');
+Route::delete('udemy-projects/{udemyProject}', [
+    UdemyProjectController::class,
+    'destroy',
+])->name('udemy-projects.destroy');
+
+// Udemy Tasks...
+Route::get('udemy-tasks', [UdemyTaskController::class, 'index'])->name('udemy-tasks.index');
+Route::get('udemy-tasks/create', [UdemyTaskController::class, 'create'])->name('udemy-tasks.create');
+Route::post('udemy-tasks', [UdemyTaskController::class, 'store'])->name('udemy-tasks.store');
+Route::get('udemy-tasks/{udemyTask}', [UdemyTaskController::class, 'show'])->name('udemy-tasks.show');
+Route::get('udemy-tasks/{udemyTask}/edit', [UdemyTaskController::class, 'edit'])->name('udemy-tasks.edit');
+Route::patch('udemy-tasks/{udemyTask}', [UdemyTaskController::class, 'update'])->name('udemy-tasks.update');
+Route::delete('udemy-tasks/{udemyTask}', [UdemyTaskController::class, 'destroy'])->name('udemy-tasks.destroy');
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('dashboard', fn () => Inertia::render('dashboard'))->name('dashboard');

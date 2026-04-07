@@ -109,6 +109,9 @@ tests/
 │       │   ├── 商品に画像がある時、imagesにURLが含まれること
 │       │   ├── バリアントにオプション値がある時、optionsにname・valueが含まれること
 │       │   └── 商品詳細propsに関連商品が含まれること
+│       ├── UdemyProjectControllerTest
+│       │   ├── titleを送信した時、Udemyプロジェクトを作成できること
+│       │   └── titleが未指定の時、バリデーションエラーになること
 │       ├── SessionControllerTest
 │       │   ├── renders login page
 │       │   ├── may create a session

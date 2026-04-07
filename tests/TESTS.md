@@ -121,6 +121,10 @@
 - [ ] バリアントにオプション値がある時、optionsにname・valueが含まれること
 - [ ] 商品詳細propsに関連商品が含まれること
 
+### Controllers / UdemyProjectControllerTest
+- [ ] titleを送信した時、Udemyプロジェクトを作成できること
+- [ ] titleが未指定の時、バリデーションエラーになること
+
 ### Controllers / SessionControllerTest
 - [ ] renders login page
 - [ ] may create a session
