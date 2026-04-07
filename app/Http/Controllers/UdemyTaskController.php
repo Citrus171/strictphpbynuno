@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\UdemyTask;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class UdemyTaskController
+final class UdemyTaskController
 {
     /**
      * Display a listing of the resource.
