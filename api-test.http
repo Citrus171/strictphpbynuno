@@ -1,0 +1,100 @@
+@baseUrl = http://127.0.0.1:8000
+
+### 事前準備: ログインしてトークンを取得
+# @name login
+POST {{baseUrl}}/udemy-auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### UdemyProjects API テスト
+
+### 1) 一覧取得
+GET {{baseUrl}}/udemy-projects
+Accept: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+### 2) 新規作成
+# @name createProject
+POST {{baseUrl}}/udemy-projects
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "title": "new data store check",
+  "description": "VS Code REST Client から作成",
+  "due_date": "2026-04-30"
+}
+
+### 3) 単体取得
+GET {{baseUrl}}/udemy-projects/{{createProject.response.body.$.id}}
+Accept: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+### 4) 更新
+PATCH {{baseUrl}}/udemy-projects/{{createProject.response.body.$.id}}
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "title": "REST Client 更新テスト changed",
+  "description": "更新確認",
+  "due_date": "2026-05-15"
+}
+
+### 5) 削除
+DELETE {{baseUrl}}/udemy-projects/{{createProject.response.body.$.id}}
+Accept: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+### UdemyTasks API テスト
+
+### 1) タスク一覧取得
+GET {{baseUrl}}/udemy-tasks
+Accept: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+### 2) タスク新規作成
+# @name createTask
+POST {{baseUrl}}/udemy-tasks
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "project_id": {{createProject.response.body.$.id}},
+  "title": "APIテストタスク",
+  "description": "REST Clientから作成",
+  "status": "pending",
+  "due_date": "2026-04-15"
+}
+
+### 3) タスク単体取得
+GET {{baseUrl}}/udemy-tasks/{{createTask.response.body.id}}
+Accept: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+### 4) タスク更新
+PATCH {{baseUrl}}/udemy-tasks/{{createTask.response.body.id}}
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "project_id": {{createProject.response.body.id}},
+  "title": "APIテストタスク 更新",
+  "description": "更新確認",
+  "status": "in_progress",
+  "due_date": "2026-04-20"
+}
+
+### 5) タスク削除
+DELETE {{baseUrl}}/udemy-tasks/{{createTask.response.body.id}}
+Accept: application/json
+Authorization: Bearer {{login.response.body.$.token}}
