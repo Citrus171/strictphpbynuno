@@ -1,0 +1,78 @@
+@baseUrl = http://127.0.0.1:8000
+
+### UdemyAuth API テスト
+
+### 1) ユーザー登録
+# @name register
+POST {{baseUrl}}/udemy-auth/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "テストユーザー",
+  "email": "test@example.com",
+  "password": "password123",
+  "password_confirmation": "password123"
+}
+
+### 2) ログイン
+# @name login
+POST {{baseUrl}}/udemy-auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### 3) ログアウト（登録レスポンスのトークンを使用）
+POST {{baseUrl}}/udemy-auth/logout
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{register.response.body.$.token}}
+
+### バリデーションエラー確認
+
+### 4) 登録 - 必須フィールド欠如
+POST {{baseUrl}}/udemy-auth/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "test2@example.com"
+}
+
+### 5) 登録 - パスワード確認不一致
+POST {{baseUrl}}/udemy-auth/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "テスト",
+  "email": "test3@example.com",
+  "password": "password123",
+  "password_confirmation": "different"
+}
+
+### 6) 登録 - メールアドレス重複
+POST {{baseUrl}}/udemy-auth/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "別のユーザー",
+  "email": "test@example.com",
+  "password": "password123",
+  "password_confirmation": "password123"
+}
+
+### 7) ログイン - 認証情報不正
+POST {{baseUrl}}/udemy-auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "test@example.com",
+  "password": "wrongpassword"
+}

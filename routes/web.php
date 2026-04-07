@@ -6,6 +6,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\UdemyAuthController;
 use App\Http\Controllers\UdemyProjectController;
 use App\Http\Controllers\UdemyTaskController;
 use App\Http\Controllers\UserController;
@@ -38,6 +39,11 @@ Route::get('checkout/complete/{order}', [CheckoutController::class, 'complete'])
 
 Route::get('products', [ProductController::class, 'index'])->name('products.index');
 Route::get('products/{slug}', [ProductController::class, 'show'])->name('products.show');
+
+// Udemy Auth...
+Route::post('udemy-auth/register', [UdemyAuthController::class, 'register'])->name('udemy-auth.register');
+Route::post('udemy-auth/login', [UdemyAuthController::class, 'login'])->name('udemy-auth.login');
+Route::middleware('auth:sanctum')->post('udemy-auth/logout', [UdemyAuthController::class, 'logout'])->name('udemy-auth.logout');
 
 // Udemy Projects...
 Route::get('udemy-projects', [UdemyProjectController::class, 'index'])->name('udemy-projects.index');
