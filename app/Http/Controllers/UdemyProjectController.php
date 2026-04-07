@@ -8,7 +8,7 @@ use App\Models\UdemyProject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-final class UdemyProjectController
+final readonly class UdemyProjectController
 {
     /**
      * Display a listing of the resource.
@@ -17,14 +17,6 @@ final class UdemyProjectController
     {
         //
         return response()->json(UdemyProject::all(), 200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -59,14 +51,6 @@ final class UdemyProjectController
         }
 
         return response()->json($project, 200);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
     }
 
     /**

@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -54,12 +53,13 @@ final readonly class UdemyAuthController
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        if (! Auth::attempt($request->only('email', 'password'))) {
+        /** @var User|null $user */
+        $user = User::where('email', $request->string('email'))->first();
+
+        if (! $user || ! Hash::check($request->string('password'), $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        /** @var User $user */
-        $user = Auth::user();
         $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
 

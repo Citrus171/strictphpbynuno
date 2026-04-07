@@ -8,7 +8,7 @@ use App\Models\UdemyTask;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-final class UdemyTaskController
+final readonly class UdemyTaskController
 {
     /**
      * Display a listing of the resource.
@@ -19,14 +19,6 @@ final class UdemyTaskController
         $tasks = UdemyTask::with('project')->get();
 
         return response()->json($tasks, 200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -64,14 +56,6 @@ final class UdemyTaskController
         }
 
         return response()->json($task, 200);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
     }
 
     /**
