@@ -25,16 +25,16 @@ final readonly class UdemyProjectController
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'due_date' => 'nullable|date',
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'due_date' => ['nullable', 'date'],
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $project = UdemyProject::create($validator->validated());
+        $project = UdemyProject::query()->create($validator->validated());
 
         return response()->json($project, 201);
     }
@@ -45,7 +45,7 @@ final readonly class UdemyProjectController
     public function show(string $id)
     {
         //
-        $project = UdemyProject::find($id);
+        $project = UdemyProject::query()->find($id);
         if (! $project) {
             return response()->json(['message' => 'Project not found'], 404);
         }
@@ -58,15 +58,15 @@ final readonly class UdemyProjectController
      */
     public function update(Request $request, string $id)
     {
-        $project = UdemyProject::find($id);
+        $project = UdemyProject::query()->find($id);
         if (! $project) {
             return response()->json(['message' => 'Project not found'], 404);
         }
 
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'due_date' => 'nullable|date',
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'due_date' => ['nullable', 'date'],
         ]);
 
         if ($validator->fails()) {
@@ -84,7 +84,7 @@ final readonly class UdemyProjectController
     public function destroy(string $id)
     {
         //
-        $project = UdemyProject::find($id);
+        $project = UdemyProject::query()->find($id);
         if (! $project) {
             return response()->json(['message' => 'Project not found'], 404);
         }

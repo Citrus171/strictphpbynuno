@@ -28,18 +28,18 @@ final readonly class UdemyTaskController
     {
         //
         $validator = Validator::make($request->all(), [
-            'project_id' => 'required|exists:udemy_projects,id',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|in:pending,in_progress,completed',
-            'due_date' => 'nullable|date',
+            'project_id' => ['required', 'exists:udemy_projects,id'],
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'status' => ['required', 'in:pending,in_progress,completed'],
+            'due_date' => ['nullable', 'date'],
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $task = UdemyTask::create($validator->validated());
+        $task = UdemyTask::query()->create($validator->validated());
 
         return response()->json($task, 201);
     }
@@ -70,11 +70,11 @@ final readonly class UdemyTaskController
         }
 
         $validator = Validator::make($request->all(), [
-            'project_id' => 'required|exists:udemy_projects,id',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|in:pending,in_progress,completed',
-            'due_date' => 'nullable|date',
+            'project_id' => ['required', 'exists:udemy_projects,id'],
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'status' => ['required', 'in:pending,in_progress,completed'],
+            'due_date' => ['nullable', 'date'],
         ]);
 
         if ($validator->fails()) {
@@ -96,6 +96,7 @@ final readonly class UdemyTaskController
         if (! $task) {
             return response()->json(['message' => 'Task not found'], 404);
         }
+
         $task->delete();
 
         return response()->json(['message' => 'Task deleted successfully'], 200);

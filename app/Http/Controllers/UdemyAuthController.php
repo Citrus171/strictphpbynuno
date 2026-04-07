@@ -16,9 +16,9 @@ final readonly class UdemyAuthController
     public function register(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
         if ($validator->fails()) {
@@ -27,7 +27,7 @@ final readonly class UdemyAuthController
 
         $validated = $validator->validated();
 
-        $user = User::create([
+        $user = User::query()->create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
@@ -45,8 +45,8 @@ final readonly class UdemyAuthController
     public function login(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
-            'password' => 'required|string',
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
         ]);
 
         if ($validator->fails()) {
@@ -54,7 +54,7 @@ final readonly class UdemyAuthController
         }
 
         /** @var User|null $user */
-        $user = User::where('email', $request->string('email'))->first();
+        $user = User::query()->where('email', $request->string('email'))->first();
 
         if (! $user || ! Hash::check($request->string('password'), $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
